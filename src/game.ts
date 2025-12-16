@@ -88,12 +88,13 @@ export function playMove(state: GameState, move: Move): MoveResult {
   }
 
   // play処理
-  const position = move.position;
+  if (move.type === "play") {
+    const position = move.position;
 
-  // 1. invalid_position チェック
-  if (!isValidPosition(state.size, position)) {
-    return { success: false, error: "invalid_position" };
-  }
+    // 1. invalid_position チェック
+    if (!isValidPosition(state.size, position)) {
+      return { success: false, error: "invalid_position" };
+    }
 
   // 2. occupied チェック
   if (state.board[position.y][position.x] !== null) {
@@ -151,21 +152,26 @@ export function playMove(state: GameState, move: Move): MoveResult {
     } else {
       newStoneCount.white -= captured.length;
     }
+    }
+
+    // 9. 手番交代
+    return {
+      success: true,
+      state: {
+        ...state,
+        board: newBoard,
+        currentPlayer: nextColor,
+        koPoint: newKoPoint,
+        moveCount: state.moveCount + 1,
+        lastMove: { ...move, color: currentColor },
+        stoneCount: newStoneCount,
+      },
+    };
   }
 
-  // 9. 手番交代
-  return {
-    success: true,
-    state: {
-      ...state,
-      board: newBoard,
-      currentPlayer: nextColor,
-      koPoint: newKoPoint,
-      moveCount: state.moveCount + 1,
-      lastMove: { ...move, color: currentColor },
-      stoneCount: newStoneCount,
-    },
-  };
+  // Exhaustive check: すべてのケースを網羅していることを保証
+  const _exhaustiveCheck: never = move;
+  return _exhaustiveCheck;
 }
 
 /**
