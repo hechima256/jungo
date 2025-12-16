@@ -41,137 +41,137 @@ export function playMove(state: GameState, move: Move): MoveResult {
   const currentColor = state.currentPlayer;
   const nextColor: Color = currentColor === "black" ? "white" : "black";
 
-  // resign処理
-  if (move.type === "resign") {
-    return {
-      success: true,
-      state: {
-        ...state,
-        lastMove: { ...move, color: currentColor },
-        moveCount: state.moveCount + 1,
-        isOver: true,
-        winner: nextColor,
-      },
-    };
-  }
+  switch (move.type) {
+    case "resign":
+      return {
+        success: true,
+        state: {
+          ...state,
+          lastMove: { ...move, color: currentColor },
+          moveCount: state.moveCount + 1,
+          isOver: true,
+          winner: nextColor,
+        },
+      };
 
-  // pass処理
-  if (move.type === "pass") {
-    // 2連続パスで終局
-    const isConsecutivePass = state.lastMove?.type === "pass";
-    const isOver = isConsecutivePass;
-    let winner: Color | "draw" | null = null;
+    case "pass": {
+      // 2連続パスで終局
+      const isConsecutivePass = state.lastMove?.type === "pass";
+      const isOver = isConsecutivePass;
+      let winner: Color | "draw" | null = null;
 
-    if (isOver) {
-      // 終局時に石数で勝敗判定
-      if (state.stoneCount.black > state.stoneCount.white) {
-        winner = "black";
-      } else if (state.stoneCount.white > state.stoneCount.black) {
-        winner = "white";
-      } else {
-        winner = "draw";
+      if (isOver) {
+        // 終局時に石数で勝敗判定
+        if (state.stoneCount.black > state.stoneCount.white) {
+          winner = "black";
+        } else if (state.stoneCount.white > state.stoneCount.black) {
+          winner = "white";
+        } else {
+          winner = "draw";
+        }
       }
+
+      return {
+        success: true,
+        state: {
+          ...state,
+          currentPlayer: nextColor,
+          koPoint: null,
+          moveCount: state.moveCount + 1,
+          lastMove: { ...move, color: currentColor },
+          isOver,
+          winner,
+        },
+      };
     }
 
-    return {
-      success: true,
-      state: {
-        ...state,
-        currentPlayer: nextColor,
-        koPoint: null,
-        moveCount: state.moveCount + 1,
-        lastMove: { ...move, color: currentColor },
-        isOver,
-        winner,
-      },
-    };
-  }
+    case "play": {
+      const position = move.position;
 
-  // play処理
-  if (move.type === "play") {
-    const position = move.position;
+      // 1. invalid_position チェック
+      if (!isValidPosition(state.size, position)) {
+        return { success: false, error: "invalid_position" };
+      }
 
-    // 1. invalid_position チェック
-    if (!isValidPosition(state.size, position)) {
-      return { success: false, error: "invalid_position" };
+      // 2. occupied チェック
+      if (state.board[position.y][position.x] !== null) {
+        return { success: false, error: "occupied" };
+      }
+
+      // 3. コウルールチェック
+      if (state.koPoint !== null) {
+        if (position.x === state.koPoint.x && position.y === state.koPoint.y) {
+          return { success: false, error: "ko" };
+        }
+      }
+
+      // 4. 仮配置して自殺手チェック
+      if (wouldBeSuicide(state.board as Cell[][], position, currentColor)) {
+        return { success: false, error: "suicide" };
+      }
+
+      // 5. 石を配置
+      let newBoard = placeStone(state.board as Cell[][], position, currentColor);
+
+      // 6. 相手の石を取る処理
+      const { board: boardAfterCapture, captured } = captureStones(newBoard, position, currentColor);
+      newBoard = boardAfterCapture;
+
+      // 7. コウチェック（1石取って1石残る場合のみkoPoint設定）
+      let newKoPoint: typeof state.koPoint = null;
+      if (captured.length === 1) {
+        // 1石取った場合、自分の石が1石だけかチェック
+        const myGroupSize = countStonesInGroup(newBoard, position);
+        if (myGroupSize === 1) {
+          // コウの可能性がある位置を記録
+          newKoPoint = captured[0];
+        }
+      }
+
+      // 8. stoneCountを差分更新
+      const newStoneCount = {
+        black: state.stoneCount.black,
+        white: state.stoneCount.white,
+      };
+
+      // 自分の石を1つ追加
+      if (currentColor === "black") {
+        newStoneCount.black += 1;
+      } else {
+        newStoneCount.white += 1;
+      }
+
+      // 取った石の分を減らす
+      if (captured.length > 0) {
+        const capturedColor = nextColor; // 相手の色
+        if (capturedColor === "black") {
+          newStoneCount.black -= captured.length;
+        } else {
+          newStoneCount.white -= captured.length;
+        }
+      }
+
+      // 9. 手番交代
+      return {
+        success: true,
+        state: {
+          ...state,
+          board: newBoard,
+          currentPlayer: nextColor,
+          koPoint: newKoPoint,
+          moveCount: state.moveCount + 1,
+          lastMove: { ...move, color: currentColor },
+          stoneCount: newStoneCount,
+        },
+      };
     }
 
-  // 2. occupied チェック
-  if (state.board[position.y][position.x] !== null) {
-    return { success: false, error: "occupied" };
-  }
-
-  // 3. コウルールチェック
-  if (state.koPoint !== null) {
-    if (position.x === state.koPoint.x && position.y === state.koPoint.y) {
-      return { success: false, error: "ko" };
+    default: {
+      // Exhaustive check: すべてのケースを網羅していることを保証
+      const _exhaustiveCheck: never = move;
+      return _exhaustiveCheck;
     }
   }
-
-  // 4. 仮配置して自殺手チェック
-  if (wouldBeSuicide(state.board as Cell[][], position, currentColor)) {
-    return { success: false, error: "suicide" };
-  }
-
-  // 5. 石を配置
-  let newBoard = placeStone(state.board as Cell[][], position, currentColor);
-
-  // 6. 相手の石を取る処理
-  const { board: boardAfterCapture, captured } = captureStones(newBoard, position, currentColor);
-  newBoard = boardAfterCapture;
-
-  // 7. コウチェック（1石取って1石残る場合のみkoPoint設定）
-  let newKoPoint: typeof state.koPoint = null;
-  if (captured.length === 1) {
-    // 1石取った場合、自分の石が1石だけかチェック
-    const myGroupSize = countStonesInGroup(newBoard, position);
-    if (myGroupSize === 1) {
-      // コウの可能性がある位置を記録
-      newKoPoint = captured[0];
-    }
-  }
-
-  // 8. stoneCountを差分更新
-  const newStoneCount = {
-    black: state.stoneCount.black,
-    white: state.stoneCount.white,
-  };
-
-  // 自分の石を1つ追加
-  if (currentColor === "black") {
-    newStoneCount.black += 1;
-  } else {
-    newStoneCount.white += 1;
-  }
-
-  // 取った石の分を減らす
-  if (captured.length > 0) {
-    const capturedColor = nextColor; // 相手の色
-    if (capturedColor === "black") {
-      newStoneCount.black -= captured.length;
-    } else {
-      newStoneCount.white -= captured.length;
-    }
-    }
-
-    // 9. 手番交代
-    return {
-      success: true,
-      state: {
-        ...state,
-        board: newBoard,
-        currentPlayer: nextColor,
-        koPoint: newKoPoint,
-        moveCount: state.moveCount + 1,
-        lastMove: { ...move, color: currentColor },
-        stoneCount: newStoneCount,
-      },
-    };
-  }
-
-  // Exhaustive check: すべてのケースを網羅していることを保証
-  const _exhaustiveCheck: never = move;
-  return _exhaustiveCheck;
 }
 
 /**
