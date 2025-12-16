@@ -172,8 +172,7 @@ export function playMove(state: GameState, move: Move): MoveResult {
 
     default: {
       // Exhaustive check: すべてのケースを網羅していることを保証
-      const _exhaustiveCheck: never = move;
-      return _exhaustiveCheck;
+      throw new Error(`Unexpected move type: ${JSON.stringify(move satisfies never)}`);
     }
   }
 }
