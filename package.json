@@ -11,9 +11,7 @@
       "import": "./dist/index.js"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
     "test": "vitest",
@@ -24,13 +22,7 @@
     "check": "biome check --write .",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": [
-    "go",
-    "jungo",
-    "pure-go",
-    "board-game",
-    "game"
-  ],
+  "keywords": ["go", "jungo", "pure-go", "board-game", "game"],
   "author": "",
   "license": "MIT",
   "devDependencies": {

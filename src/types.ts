@@ -23,9 +23,4 @@ export type MoveResult =
   | { readonly success: true; readonly state: GameState }
   | { readonly success: false; readonly error: MoveError };
 
-export type MoveError =
-  | "invalid_position"
-  | "occupied"
-  | "suicide"
-  | "ko"
-  | "game_over";
+export type MoveError = "invalid_position" | "occupied" | "suicide" | "ko" | "game_over";
