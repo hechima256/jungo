@@ -1,4 +1,4 @@
-# jungo-core-lib
+# jungo
 
 純碁（Jungo）のゲームロジックを提供するTypeScriptライブラリです。
 
@@ -16,13 +16,13 @@
 ## インストール
 
 ```bash
-npm install jungo-core-lib
+npm install jungo
 ```
 
 ## 基本的な使い方
 
 ```typescript
-import { createGame, playMove } from 'jungo-core-lib';
+import { createGame, playMove } from 'jungo';
 
 // 9x9の盤面でゲームを開始
 const initialState = createGame(9);

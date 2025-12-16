@@ -1,5 +1,5 @@
 /**
- * jungo-core-lib
+ * jungo
  * A pure Go (Jungo) game library
  */
 
@@ -13,7 +13,7 @@ export type {
   Move,
   MoveError,
   MoveResult,
-  Position,
+  Position
 } from "./types.js";
 
 // Export functions from game.ts
