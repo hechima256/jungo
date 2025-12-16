@@ -100,19 +100,26 @@ export function playMove(state: GameState, move: Move): MoveResult {
     return { success: false, error: "occupied" };
   }
 
-  // 3. 仮配置して自殺手チェック
+  // 3. コウルールチェック
+  if (state.koPoint !== null) {
+    if (position.x === state.koPoint.x && position.y === state.koPoint.y) {
+      return { success: false, error: "ko" };
+    }
+  }
+
+  // 4. 仮配置して自殺手チェック
   if (wouldBeSuicide(state.board as Cell[][], position, currentColor)) {
     return { success: false, error: "suicide" };
   }
 
-  // 4. 石を配置
+  // 5. 石を配置
   let newBoard = placeStone(state.board as Cell[][], position, currentColor);
 
-  // 5. 相手の石を取る処理
+  // 6. 相手の石を取る処理
   const { board: boardAfterCapture, captured } = captureStones(newBoard, position, currentColor);
   newBoard = boardAfterCapture;
 
-  // 6. コウチェック（1石取って1石残る場合のみkoPoint設定）
+  // 7. コウチェック（1石取って1石残る場合のみkoPoint設定）
   let newKoPoint: typeof state.koPoint = null;
   if (captured.length === 1) {
     // 1石取った場合、自分の石が1石だけかチェック
@@ -123,14 +130,7 @@ export function playMove(state: GameState, move: Move): MoveResult {
     }
   }
 
-  // コウルールチェック
-  if (state.koPoint !== null) {
-    if (position.x === state.koPoint.x && position.y === state.koPoint.y) {
-      return { success: false, error: "ko" };
-    }
-  }
-
-  // 7. stoneCountを差分更新
+  // 8. stoneCountを差分更新
   const newStoneCount = {
     black: state.stoneCount.black,
     white: state.stoneCount.white,
@@ -153,7 +153,7 @@ export function playMove(state: GameState, move: Move): MoveResult {
     }
   }
 
-  // 8. 手番交代
+  // 9. 手番交代
   return {
     success: true,
     state: {
