@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest",
-    "test:ui": "vitest --ui",
+    "test:ui": "vitest --ui --open false",
     "test:coverage": "vitest --coverage",
     "lint": "biome lint .",
     "format": "biome format --write .",
