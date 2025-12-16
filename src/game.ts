@@ -1,0 +1,223 @@
+import {
+  captureStones,
+  createEmptyBoard,
+  isValidPosition,
+  placeStone,
+  wouldBeSuicide,
+} from "./board.js";
+import type { Cell, Color, GameState, Move, MoveResult } from "./types.js";
+
+/**
+ * 指定サイズの新規ゲームを作成
+ * @param size 盤面のサイズ
+ * @returns 初期化されたGameState
+ */
+export function createGame(size: number): GameState {
+  return {
+    board: createEmptyBoard(size),
+    size,
+    currentPlayer: "black",
+    koPoint: null,
+    moveCount: 0,
+    lastMove: null,
+    isOver: false,
+    winner: null,
+    stoneCount: { black: 0, white: 0 },
+  };
+}
+
+/**
+ * 着手を実行し、新しいGameStateを返す
+ * @param state 現在のGameState
+ * @param move 実行する着手
+ * @returns MoveResult（成功時は新しいGameState、失敗時はエラー）
+ */
+export function playMove(state: GameState, move: Move): MoveResult {
+  // ゲーム終了済みならエラー
+  if (state.isOver) {
+    return { success: false, error: "game_over" };
+  }
+
+  const currentColor = state.currentPlayer;
+  const nextColor: Color = currentColor === "black" ? "white" : "black";
+
+  // resign処理
+  if (move.type === "resign") {
+    return {
+      success: true,
+      state: {
+        ...state,
+        lastMove: { ...move, color: currentColor },
+        moveCount: state.moveCount + 1,
+        isOver: true,
+        winner: nextColor,
+      },
+    };
+  }
+
+  // pass処理
+  if (move.type === "pass") {
+    // 2連続パスで終局
+    const isConsecutivePass = state.lastMove?.type === "pass";
+    const isOver = isConsecutivePass;
+    let winner: Color | "draw" | null = null;
+
+    if (isOver) {
+      // 終局時に石数で勝敗判定
+      if (state.stoneCount.black > state.stoneCount.white) {
+        winner = "black";
+      } else if (state.stoneCount.white > state.stoneCount.black) {
+        winner = "white";
+      } else {
+        winner = "draw";
+      }
+    }
+
+    return {
+      success: true,
+      state: {
+        ...state,
+        currentPlayer: nextColor,
+        koPoint: null,
+        moveCount: state.moveCount + 1,
+        lastMove: { ...move, color: currentColor },
+        isOver,
+        winner,
+      },
+    };
+  }
+
+  // play処理
+  const position = move.position;
+
+  // 1. invalid_position チェック
+  if (!isValidPosition(state.size, position)) {
+    return { success: false, error: "invalid_position" };
+  }
+
+  // 2. occupied チェック
+  if (state.board[position.y][position.x] !== null) {
+    return { success: false, error: "occupied" };
+  }
+
+  // 3. 仮配置して自殺手チェック
+  if (wouldBeSuicide(state.board as Cell[][], position, currentColor)) {
+    return { success: false, error: "suicide" };
+  }
+
+  // 4. 石を配置
+  let newBoard = placeStone(state.board as Cell[][], position, currentColor);
+
+  // 5. 相手の石を取る処理
+  const { board: boardAfterCapture, captured } = captureStones(newBoard, position, currentColor);
+  newBoard = boardAfterCapture;
+
+  // 6. コウチェック（1石取って1石残る場合のみkoPoint設定）
+  let newKoPoint: typeof state.koPoint = null;
+  if (captured.length === 1) {
+    // 1石取った場合、自分の石が1石だけかチェック
+    const myGroupSize = countStonesInGroup(newBoard, position);
+    if (myGroupSize === 1) {
+      // コウの可能性がある位置を記録
+      newKoPoint = captured[0];
+    }
+  }
+
+  // コウルールチェック
+  if (state.koPoint !== null) {
+    if (position.x === state.koPoint.x && position.y === state.koPoint.y) {
+      return { success: false, error: "ko" };
+    }
+  }
+
+  // 7. stoneCountを差分更新
+  const newStoneCount = {
+    black: state.stoneCount.black,
+    white: state.stoneCount.white,
+  };
+
+  // 自分の石を1つ追加
+  if (currentColor === "black") {
+    newStoneCount.black += 1;
+  } else {
+    newStoneCount.white += 1;
+  }
+
+  // 取った石の分を減らす
+  if (captured.length > 0) {
+    const capturedColor = nextColor; // 相手の色
+    if (capturedColor === "black") {
+      newStoneCount.black -= captured.length;
+    } else {
+      newStoneCount.white -= captured.length;
+    }
+  }
+
+  // 8. 手番交代
+  return {
+    success: true,
+    state: {
+      ...state,
+      board: newBoard,
+      currentPlayer: nextColor,
+      koPoint: newKoPoint,
+      moveCount: state.moveCount + 1,
+      lastMove: { ...move, color: currentColor },
+      stoneCount: newStoneCount,
+    },
+  };
+}
+
+/**
+ * 指定位置のグループに含まれる石の数を数える
+ * @param board 盤面
+ * @param position 基準となる座標
+ * @returns グループ内の石の数
+ */
+function countStonesInGroup(
+  board: ReadonlyArray<ReadonlyArray<Color | null>>,
+  position: { readonly x: number; readonly y: number }
+): number {
+  const color = board[position.y]?.[position.x];
+  if (color === null || color === undefined) {
+    return 0;
+  }
+
+  const size = board.length;
+  const visited = new Set<string>();
+  const stack: Array<{ x: number; y: number }> = [position];
+  let count = 0;
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) continue;
+
+    const key = `${current.x},${current.y}`;
+    if (visited.has(key)) continue;
+
+    visited.add(key);
+
+    if (board[current.y]?.[current.x] === color) {
+      count++;
+
+      const directions = [
+        { x: 0, y: -1 },
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+      ];
+
+      for (const dir of directions) {
+        const newPos = { x: current.x + dir.x, y: current.y + dir.y };
+        if (newPos.x >= 0 && newPos.x < size && newPos.y >= 0 && newPos.y < size) {
+          const neighborKey = `${newPos.x},${newPos.y}`;
+          if (!visited.has(neighborKey)) {
+            stack.push(newPos);
+          }
+        }
+      }
+    }
+  }
+
+  return count;
+}
