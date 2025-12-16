@@ -114,7 +114,11 @@ export function playMove(state: GameState, move: Move): MoveResult {
       let newBoard = placeStone(state.board as Cell[][], position, currentColor);
 
       // 6. 相手の石を取る処理
-      const { board: boardAfterCapture, captured } = captureStones(newBoard, position, currentColor);
+      const { board: boardAfterCapture, captured } = captureStones(
+        newBoard,
+        position,
+        currentColor
+      );
       newBoard = boardAfterCapture;
 
       // 7. コウチェック（1石取って1石残る場合のみkoPoint設定）

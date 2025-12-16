@@ -5,6 +5,8 @@
 
 export const version = "0.1.0";
 
+// Export functions from game.ts
+export { createGame, playMove } from "./game.js";
 // Export types from types.ts
 export type {
   Cell,
@@ -13,8 +15,5 @@ export type {
   Move,
   MoveError,
   MoveResult,
-  Position
+  Position,
 } from "./types.js";
-
-// Export functions from game.ts
-export { createGame, playMove } from "./game.js";
