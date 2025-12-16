@@ -153,7 +153,7 @@ npm run typecheck
 
 ## ライセンス
 
-MIT
+[MITライセンス](./LICENSE)
 
 ## バージョン
 
