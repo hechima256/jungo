@@ -25,7 +25,6 @@
  * ```
  */
 
-
 export { MIN_BOARD_SIZE } from "./constants.js";
 
 export { createGame, playMove } from "./game.js";
@@ -37,6 +36,5 @@ export type {
   Move,
   MoveError,
   MoveResult,
-  Position
+  Position,
 } from "./types.js";
-
