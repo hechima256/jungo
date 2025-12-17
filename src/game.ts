@@ -5,6 +5,7 @@ import {
   placeStone,
   wouldBeSuicide,
 } from "./board.js";
+import { MIN_BOARD_SIZE } from "./constants.js";
 import type { Cell, Color, GameState, Move, MoveResult } from "./types.js";
 
 /**
@@ -13,6 +14,9 @@ import type { Cell, Color, GameState, Move, MoveResult } from "./types.js";
  * @returns 初期化されたGameState
  */
 export function createGame(size: number): GameState {
+  if (!Number.isInteger(size) || size < MIN_BOARD_SIZE) {
+    throw new Error(`Invalid board size: ${size}. Must be an integer >= ${MIN_BOARD_SIZE}.`);
+  }
   return {
     board: createEmptyBoard(size),
     size,
