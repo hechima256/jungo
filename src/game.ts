@@ -180,7 +180,7 @@ export function playMove(state: GameState, move: Move): MoveResult {
 /**
  * 指定位置のグループに含まれる石の数を数える
  * @param board 盤面
- * @param position 基準となる座標
+ * @param position 基準となる座標（0-indexed）
  * @returns グループ内の石の数
  */
 function countStonesInGroup(

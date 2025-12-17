@@ -1,5 +1,11 @@
 export type Color = "black" | "white";
 export type Cell = Color | null;
+
+/**
+ * 盤面上の座標を表す型
+ * @property x - X座標（0-indexed、左から右へ0からsize-1）
+ * @property y - Y座標（0-indexed、上から下へ0からsize-1）
+ */
 export type Position = { readonly x: number; readonly y: number };
 
 export type Move =
