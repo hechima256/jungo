@@ -1,11 +1,16 @@
 import type { Cell, Color, Position } from "./types.js";
 
+const MIN_BOARD_SIZE = 2;
+
 /**
  * 指定サイズの空の盤面を作成
  * @param size 盤面のサイズ
  * @returns すべてのセルがnullで初期化された2次元配列
  */
 export function createEmptyBoard(size: number): Cell[][] {
+  if (size < MIN_BOARD_SIZE) {
+    throw new Error(`Board size must be at least ${MIN_BOARD_SIZE}`);
+  }
   return Array.from({ length: size }, () => Array(size).fill(null));
 }
 
