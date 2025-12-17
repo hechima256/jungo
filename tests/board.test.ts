@@ -34,7 +34,13 @@ describe("createEmptyBoard", () => {
     it.each([1, 0, -1])("サイズ%iでエラーが発生すること", (size) => {
       expect(() => createEmptyBoard(size)).toThrow();
     });
-    it.each([-2.5, 9.1, NaN, Infinity, -Infinity])("非整数サイズ%iでエラーが発生すること", (size) => { 
+    it.each([
+      -2.5,
+      9.1,
+      NaN,
+      Infinity,
+      -Infinity,
+    ])("非整数サイズ%iでエラーが発生すること", (size) => {
       expect(() => createEmptyBoard(size)).toThrow();
     });
   });
