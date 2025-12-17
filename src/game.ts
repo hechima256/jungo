@@ -9,9 +9,31 @@ import { MIN_BOARD_SIZE } from "./constants.js";
 import type { Cell, Color, GameState, Move, MoveResult } from "./types.js";
 
 /**
- * 指定サイズの新規ゲームを作成
- * @param size 盤面のサイズ
- * @returns 初期化されたGameState
+ * 指定サイズの新規ゲームを作成します。
+ *
+ * 新しい囲碁ゲームを開始する際に使用します。
+ * 盤面サイズは{@link MIN_BOARD_SIZE}以上の整数である必要があります。
+ * 初期状態では黒番から開始し、盤面は全て空です。
+ *
+ * @param size - 盤面のサイズ（{@link MIN_BOARD_SIZE}以上の整数、通常は7, 9など）
+ * @returns 初期化された{@link GameState}
+ * @throws サイズが整数でないか、{@link MIN_BOARD_SIZE}未満の場合にエラーをスローします
+ *
+ * @example
+ * ```ts
+ * // 19路盤でゲームを開始
+ * const game = createGame(19);
+ * console.log(game.currentPlayer); // "black"
+ * console.log(game.moveCount); // 0
+ * ```
+ *
+ * @example
+ * ```ts
+ * // 9路盤でゲームを開始
+ * const smallGame = createGame(9);
+ * console.log(smallGame.size); // 9
+ * console.log(smallGame.isOver); // false
+ * ```
  */
 export function createGame(size: number): GameState {
   if (!Number.isInteger(size) || size < MIN_BOARD_SIZE) {
@@ -31,10 +53,64 @@ export function createGame(size: number): GameState {
 }
 
 /**
- * 着手を実行し、新しいGameStateを返す
- * @param state 現在のGameState
- * @param move 実行する着手
- * @returns MoveResult（成功時は新しいGameState、失敗時はエラー）
+ * 着手を実行し、新しいゲーム状態を返します。
+ *
+ * 囲碁の着手（石を置く、パス、投了）を実行します。
+ * 着手の有効性を検証し、盤面の状態を更新します。
+ * 着手には以下の種類があります：
+ * - `play`: 指定位置に石を置く
+ * - `pass`: 手番をパスする（2連続パスで終局）
+ * - `resign`: 投了する
+ *
+ * 着手が無効な場合は、エラー情報を含む{@link MoveResult}を返します。
+ * エラーの種類については{@link MoveError}を参照してください。
+ *
+ * @param state - 現在の{@link GameState}
+ * @param move - 実行する{@link Move}（play, pass, resignのいずれか）
+ * @returns {@link MoveResult} - 成功時は新しい{@link GameState}、失敗時は{@link MoveError}
+ *
+ * @example
+ * ```ts
+ * // 石を置く
+ * const game = createGame(19);
+ * const result = playMove(game, { type: "play", position: { x: 3, y: 3 } });
+ * if (result.success) {
+ *   console.log(result.state.currentPlayer); // "white"
+ *   console.log(result.state.board[3][3]); // "black"
+ * }
+ * ```
+ *
+ * @example
+ * ```ts
+ * // パスする
+ * const game = createGame(19);
+ * const result = playMove(game, { type: "pass" });
+ * if (result.success) {
+ *   console.log(result.state.currentPlayer); // "white"
+ *   console.log(result.state.moveCount); // 1
+ * }
+ * ```
+ *
+ * @example
+ * ```ts
+ * // 投了する
+ * const game = createGame(19);
+ * const result = playMove(game, { type: "resign" });
+ * if (result.success) {
+ *   console.log(result.state.isOver); // true
+ *   console.log(result.state.winner); // "white" (黒が投了したので白の勝ち)
+ * }
+ * ```
+ *
+ * @example
+ * ```ts
+ * // 無効な着手（既に石がある位置）
+ * let game = createGame(19);
+ * game = playMove(game, { type: "play", position: { x: 3, y: 3 } }).state!;
+ * const result = playMove(game, { type: "play", position: { x: 3, y: 3 } });
+ * console.log(result.success); // false
+ * console.log(result.error); // "occupied"
+ * ```
  */
 export function playMove(state: GameState, move: Move): MoveResult {
   // ゲーム終了済みならエラー
@@ -182,10 +258,25 @@ export function playMove(state: GameState, move: Move): MoveResult {
 }
 
 /**
- * 指定位置のグループに含まれる石の数を数える
- * @param board 盤面
- * @param position 基準となる座標（0-indexed）
- * @returns グループ内の石の数
+ * 指定位置のグループに含まれる石の数を数えます。
+ *
+ * コウの判定に使用される内部関数です。
+ * 深さ優先探索（DFS）を使用して、同じ色で連結している石の数を数えます。
+ * 指定位置に石がない場合は0を返します。
+ *
+ * @internal
+ * @param board - 盤面
+ * @param position - 基準となる座標（0-indexed）{@link Position}
+ * @returns グループ内の石の数。石がない場合は0
+ *
+ * @example
+ * ```ts
+ * const board = createEmptyBoard(19);
+ * board = placeStone(board, { x: 3, y: 3 }, "black");
+ * board = placeStone(board, { x: 4, y: 3 }, "black");
+ * const count = countStonesInGroup(board, { x: 3, y: 3 });
+ * console.log(count); // 2
+ * ```
  */
 function countStonesInGroup(
   board: ReadonlyArray<ReadonlyArray<Color | null>>,

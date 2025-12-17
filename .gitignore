@@ -37,3 +37,6 @@ yarn-error.log*
 
 # Docs for AI coding tools
 .clinerules
+
+# Documentation output
+docs/

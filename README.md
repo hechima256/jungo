@@ -1,3 +1,5 @@
+![CI](https://github.com/hechima256/jungo/actions/workflows/ci.yml/badge.svg)
+
 # jungo
 
 純碁（Jungo）のゲームロジックを提供するTypeScriptライブラリです。
