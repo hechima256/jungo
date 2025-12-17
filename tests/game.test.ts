@@ -3,60 +3,106 @@ import { createGame, playMove } from "../src/game.js";
 import type { GameState, Move } from "../src/types.js";
 
 describe("createGame", () => {
-  it.each([2, 3, 7, 19])("%d路盤が正しく作成されること", (size) => {
-    const game = createGame(size);
-    expect(game.size).toBe(size);
-    expect(game.board).toHaveLength(size);
-    expect(game.board[0]).toHaveLength(size);
-  });
+  describe("正常系", () => {
+    describe("盤面サイズの検証", () => {
+      it.each([2, 3, 7, 19])("Given: %d路盤を指定 / When: ゲームを作成 / Then: 指定サイズの盤面が作成される", (size) => {
+        // Arrange - 準備は不要（引数として渡すのみ）
 
-  it("初期状態で黒の先手であること", () => {
-    const game = createGame(9);
-    expect(game.currentPlayer).toBe("black");
-  });
+        // Act - 実行
+        const game = createGame(size);
 
-  it("初期状態でmoveCountが0であること", () => {
-    const game = createGame(9);
-    expect(game.moveCount).toBe(0);
-  });
+        // Assert - 検証
+        expect(game.size).toBe(size);
+        expect(game.board).toHaveLength(size);
+        expect(game.board[0]).toHaveLength(size);
+      });
+    });
 
-  it("初期状態でゲームが終了していないこと", () => {
-    const game = createGame(9);
-    expect(game.isOver).toBe(false);
-    expect(game.winner).toBeNull();
-  });
+    describe("初期状態の検証", () => {
+      it("Given: 9路盤でゲームを作成 / When: 初期状態を確認 / Then: 黒の先手である", () => {
+        // Arrange & Act
+        const game = createGame(9);
 
-  it("初期状態でkoPointがnullであること", () => {
-    const game = createGame(9);
-    expect(game.koPoint).toBeNull();
-  });
+        // Assert
+        expect(game.currentPlayer).toBe("black");
+      });
 
-  it("初期状態でlastMoveがnullであること", () => {
-    const game = createGame(9);
-    expect(game.lastMove).toBeNull();
-  });
+      it("Given: 9路盤でゲームを作成 / When: 初期状態を確認 / Then: moveCountが0である", () => {
+        // Arrange & Act
+        const game = createGame(9);
 
-  it("初期状態で石数が0:0であること", () => {
-    const game = createGame(9);
-    expect(game.stoneCount).toEqual({ black: 0, white: 0 });
-  });
+        // Assert
+        expect(game.moveCount).toBe(0);
+      });
 
-  it("初期状態で全セルがnullであること", () => {
-    const game = createGame(7);
-    for (const row of game.board) {
-      for (const cell of row) {
-        expect(cell).toBeNull();
-      }
-    }
+      it("Given: 9路盤でゲームを作成 / When: 初期状態を確認 / Then: ゲームが終了していない", () => {
+        // Arrange & Act
+        const game = createGame(9);
+
+        // Assert
+        expect(game.isOver).toBe(false);
+        expect(game.winner).toBeNull();
+      });
+
+      it("Given: 9路盤でゲームを作成 / When: 初期状態を確認 / Then: koPointがnullである", () => {
+        // Arrange & Act
+        const game = createGame(9);
+
+        // Assert
+        expect(game.koPoint).toBeNull();
+      });
+
+      it("Given: 9路盤でゲームを作成 / When: 初期状態を確認 / Then: lastMoveがnullである", () => {
+        // Arrange & Act
+        const game = createGame(9);
+
+        // Assert
+        expect(game.lastMove).toBeNull();
+      });
+
+      it("Given: 9路盤でゲームを作成 / When: 初期状態を確認 / Then: 石数が0:0である", () => {
+        // Arrange & Act
+        const game = createGame(9);
+
+        // Assert
+        expect(game.stoneCount).toEqual({ black: 0, white: 0 });
+      });
+
+      it("Given: 7路盤でゲームを作成 / When: 初期状態を確認 / Then: 全セルがnullである", () => {
+        // Arrange & Act
+        const game = createGame(7);
+
+        // Assert
+        for (const row of game.board) {
+          for (const cell of row) {
+            expect(cell).toBeNull();
+          }
+        }
+      });
+    });
   });
 
   describe("異常系", () => {
-    it.each([1, 0, -1])("盤面サイズが2未満の場合にエラーが発生すること", (size) => {
-      expect(() => createGame(size)).toThrow("Invalid board size");
-    });
+    describe("不正な盤面サイズの検証", () => {
+      it.each([1, 0, -1])(
+        "Given: 盤面サイズに%dを指定 / When: ゲームを作成 / Then: Invalid board sizeエラーが発生",
+        (size) => {
+          // Arrange - 準備は不要
 
-    it.each([4.5, -2.1, NaN, Infinity])("盤面サイズが整数でない場合にエラーが発生すること", (size) => {
-      expect(() => createGame(size)).toThrow("Must be an integer");
+          // Act & Assert
+          expect(() => createGame(size)).toThrow("Invalid board size");
+        }
+      );
+
+      it.each([4.5, -2.1, NaN, Infinity])(
+        "Given: 盤面サイズに%sを指定 / When: ゲームを作成 / Then: Must be an integerエラーが発生",
+        (size) => {
+          // Arrange - 準備は不要
+
+          // Act & Assert
+          expect(() => createGame(size)).toThrow("Must be an integer");
+        }
+      );
     });
   });
 });
