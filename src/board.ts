@@ -17,7 +17,7 @@ export function createEmptyBoard(size: number): Cell[][] {
 /**
  * 座標が盤面内かどうかを検証
  * @param size 盤面のサイズ
- * @param position 検証する座標
+ * @param position 検証する座標（0-indexed）
  * @returns 座標が盤面内ならtrue
  */
 export function isValidPosition(size: number, position: Position): boolean {
@@ -27,7 +27,7 @@ export function isValidPosition(size: number, position: Position): boolean {
 /**
  * 指定位置に石を配置した新しい盤面を返す（イミュータブル）
  * @param board 現在の盤面
- * @param position 石を配置する座標
+ * @param position 石を配置する座標（0-indexed）
  * @param color 配置する石の色
  * @returns 石を配置した新しい盤面（構造共有）
  */
@@ -41,8 +41,8 @@ export function placeStone(board: Cell[][], position: Position, color: Color): C
 /**
  * 指定位置の隣接4方向（上下左右）の座標を返す
  * @param size 盤面のサイズ
- * @param position 基準となる座標
- * @returns 盤面内の隣接座標の配列
+ * @param position 基準となる座標（0-indexed）
+ * @returns 盤面内の隣接座標の配列（0-indexed）
  */
 export function getNeighbors(size: number, position: Position): Position[] {
   const neighbors: Position[] = [];
@@ -66,8 +66,8 @@ export function getNeighbors(size: number, position: Position): Position[] {
 /**
  * 指定位置の石と連結しているグループを取得
  * @param board 盤面
- * @param position 基準となる座標
- * @returns グループに属する座標の配列
+ * @param position 基準となる座標（0-indexed）
+ * @returns グループに属する座標の配列（0-indexed）
  */
 export function findGroup(board: Cell[][], position: Position): Position[] {
   const color = board[position.y]?.[position.x];
@@ -107,7 +107,7 @@ export function findGroup(board: Cell[][], position: Position): Position[] {
 /**
  * 指定位置の石グループの呼吸点（自由度）を計算
  * @param board 盤面
- * @param position 基準となる座標
+ * @param position 基準となる座標（0-indexed）
  * @returns グループ全体の空点の数
  */
 export function countLiberties(board: Cell[][], position: Position): number {
@@ -129,7 +129,7 @@ export function countLiberties(board: Cell[][], position: Position): number {
 /**
  * 指定位置の石を削除した新しい盤面を返す（イミュータブル）
  * @param board 現在の盤面
- * @param positions 削除する石の座標配列
+ * @param positions 削除する石の座標配列（0-indexed）
  * @returns 石を削除した新しい盤面（構造共有）
  */
 export function removeStones(board: Cell[][], positions: Position[]): Cell[][] {
@@ -154,9 +154,9 @@ export function removeStones(board: Cell[][], positions: Position[]): Cell[][] {
 /**
  * 最後の着手後に取れる相手の石を検出して削除
  * @param board 盤面
- * @param lastMove 最後の着手位置
+ * @param lastMove 最後の着手位置（0-indexed）
  * @param color 着手した石の色
- * @returns 取った石の位置と新しい盤面
+ * @returns 取った石の位置（0-indexed）と新しい盤面
  */
 export function captureStones(
   board: Cell[][],
@@ -188,7 +188,7 @@ export function captureStones(
 /**
  * 指定位置への着手が自殺手かどうかを判定
  * @param board 盤面
- * @param position 着手位置
+ * @param position 着手位置（0-indexed）
  * @param color 着手する石の色
  * @returns 自殺手ならtrue
  */
