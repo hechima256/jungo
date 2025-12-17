@@ -38,6 +38,7 @@
  */
 export const version = "0.1.0";
 
+export { MIN_BOARD_SIZE } from "./constants.js";
 /**
  * ゲーム作成関数
  *
