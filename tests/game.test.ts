@@ -3,25 +3,11 @@ import { createGame, playMove } from "../src/game.js";
 import type { GameState, Move } from "../src/types.js";
 
 describe("createGame", () => {
-  it("9路盤が正しく作成されること", () => {
-    const game = createGame(9);
-    expect(game.size).toBe(9);
-    expect(game.board).toHaveLength(9);
-    expect(game.board[0]).toHaveLength(9);
-  });
-
-  it("13路盤が正しく作成されること", () => {
-    const game = createGame(13);
-    expect(game.size).toBe(13);
-    expect(game.board).toHaveLength(13);
-    expect(game.board[0]).toHaveLength(13);
-  });
-
-  it("19路盤が正しく作成されること", () => {
-    const game = createGame(19);
-    expect(game.size).toBe(19);
-    expect(game.board).toHaveLength(19);
-    expect(game.board[0]).toHaveLength(19);
+  it.each([2, 3, 7, 19])("%d路盤が正しく作成されること", (size) => {
+    const game = createGame(size);
+    expect(game.size).toBe(size);
+    expect(game.board).toHaveLength(size);
+    expect(game.board[0]).toHaveLength(size);
   });
 
   it("初期状態で黒の先手であること", () => {
@@ -56,12 +42,22 @@ describe("createGame", () => {
   });
 
   it("初期状態で全セルがnullであること", () => {
-    const game = createGame(9);
+    const game = createGame(7);
     for (const row of game.board) {
       for (const cell of row) {
         expect(cell).toBeNull();
       }
     }
+  });
+
+  describe("異常系", () => {
+    it.each([1, 0, -1])("盤面サイズが2未満の場合にエラーが発生すること", (size) => {
+      expect(() => createGame(size)).toThrow("Invalid board size");
+    });
+
+    it.each([4.5, -2.1, NaN, Infinity])("盤面サイズが整数でない場合にエラーが発生すること", (size) => {
+      expect(() => createGame(size)).toThrow("Must be an integer");
+    });
   });
 });
 
