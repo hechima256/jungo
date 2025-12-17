@@ -16,6 +16,7 @@
   "files": [
     "dist"
   ],
+
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
@@ -23,8 +24,11 @@
     "test:ui": "vitest --ui --open false",
     "test:coverage": "vitest --coverage",
     "lint": "biome lint .",
-    "format": "biome format --write .",
-    "check": "biome check --write .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
