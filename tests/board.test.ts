@@ -13,30 +13,30 @@ import {
 } from "../src/board.js";
 
 describe("createEmptyBoard", () => {
-  
-    it.each([2, 7, 9, 13, 19])("Given: 盤面サイズ%iを指定 / When: 空盤面を作成 / Then: 指定サイズの盤面が作成される", (size) => {
-      // Arrange - 準備は不要（引数として渡すのみ）
+  it.each([
+    2, 7, 9, 13, 19,
+  ])("Given: 盤面サイズ%iを指定 / When: 空盤面を作成 / Then: 指定サイズの盤面が作成される", (size) => {
+    // Arrange - 準備は不要（引数として渡すのみ）
 
-      // Act
-      const board = createEmptyBoard(size);
+    // Act
+    const board = createEmptyBoard(size);
 
-      // Assert
-      expect(board).toHaveLength(size);
-      expect(board[0]).toHaveLength(size);
-    });
+    // Assert
+    expect(board).toHaveLength(size);
+    expect(board[0]).toHaveLength(size);
+  });
 
-    it("Given: 9路盤を作成 / When: 盤面の全セルを確認 / Then: 全てのセルがnullである", () => {
-      // Arrange & Act
-      const board = createEmptyBoard(9);
+  it("Given: 9路盤を作成 / When: 盤面の全セルを確認 / Then: 全てのセルがnullである", () => {
+    // Arrange & Act
+    const board = createEmptyBoard(9);
 
-      // Assert
-      for (const row of board) {
-        for (const cell of row) {
-          expect(cell).toBeNull();
-        }
+    // Assert
+    for (const row of board) {
+      for (const cell of row) {
+        expect(cell).toBeNull();
       }
-    });
-
+    }
+  });
 });
 
 describe("isValidPosition", () => {

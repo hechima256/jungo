@@ -5,7 +5,9 @@ import type { GameState, Move } from "../src/types.js";
 describe("createGame", () => {
   describe("正常系", () => {
     describe("盤面サイズの検証", () => {
-      it.each([2, 3, 7, 19])("Given: %d路盤を指定 / When: ゲームを作成 / Then: 指定サイズの盤面が作成される", (size) => {
+      it.each([
+        2, 3, 7, 19,
+      ])("Given: %d路盤を指定 / When: ゲームを作成 / Then: 指定サイズの盤面が作成される", (size) => {
         // Arrange - 準備は不要（引数として渡すのみ）
 
         // Act - 実行
@@ -84,25 +86,26 @@ describe("createGame", () => {
 
   describe("異常系", () => {
     describe("不正な盤面サイズの検証", () => {
-      it.each([1, 0, -1])(
-        "Given: 盤面サイズに%dを指定 / When: ゲームを作成 / Then: Invalid board sizeエラーが発生",
-        (size) => {
-          // Arrange - 準備は不要
+      it.each([
+        1, 0, -1,
+      ])("Given: 盤面サイズに%dを指定 / When: ゲームを作成 / Then: Invalid board sizeエラーが発生", (size) => {
+        // Arrange - 準備は不要
 
-          // Act & Assert
-          expect(() => createGame(size)).toThrow("Invalid board size");
-        }
-      );
+        // Act & Assert
+        expect(() => createGame(size)).toThrow("Invalid board size");
+      });
 
-      it.each([4.5, -2.1, NaN, Infinity])(
-        "Given: 盤面サイズに%sを指定 / When: ゲームを作成 / Then: Must be an integerエラーが発生",
-        (size) => {
-          // Arrange - 準備は不要
+      it.each([
+        4.5,
+        -2.1,
+        NaN,
+        Infinity,
+      ])("Given: 盤面サイズに%sを指定 / When: ゲームを作成 / Then: Must be an integerエラーが発生", (size) => {
+        // Arrange - 準備は不要
 
-          // Act & Assert
-          expect(() => createGame(size)).toThrow("Must be an integer");
-        }
-      );
+        // Act & Assert
+        expect(() => createGame(size)).toThrow("Must be an integer");
+      });
     });
   });
 });
@@ -230,7 +233,7 @@ describe("playMove - 基本機能", () => {
       const result1 = playMove(game, pass1);
       expect(result1.success).toBe(true);
       if (!result1.success) return;
-      
+
       game = result1.state;
       const pass2: Move = { type: "pass" };
       const result2 = playMove(game, pass2);
@@ -394,7 +397,7 @@ describe("playMove - エラーケース", () => {
     it("Given: (4,4)が白石で完全に囲まれた状態 / When: 黒が(4,4)に打つ / Then: suicideエラーが返される", () => {
       // Arrange - (4,4)を白石で四方から囲む
       let game = createGame(9);
-      
+
       // 白石を(4,3)に配置
       game = playMove(game, { type: "pass" }).success
         ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -407,7 +410,7 @@ describe("playMove - エラーケース", () => {
             }
           ).state
         : game;
-      
+
       // 白石を(5,4)に配置
       game = playMove(game, { type: "pass" }).success
         ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -420,7 +423,7 @@ describe("playMove - エラーケース", () => {
             }
           ).state
         : game;
-      
+
       // 白石を(4,5)に配置
       game = playMove(game, { type: "pass" }).success
         ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -433,7 +436,7 @@ describe("playMove - エラーケース", () => {
             }
           ).state
         : game;
-      
+
       // 白石を(3,4)に配置
       game = playMove(game, { type: "pass" }).success
         ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -465,7 +468,7 @@ describe("playMove - 石の取得", () => {
   it("Given: (4,4)の白石1個が黒石で囲まれた状態 / When: 最後の包囲点(4,5)に黒石を打つ / Then: 白石が取られる", () => {
     // Arrange - (4,4)の白石を黒石で四方から囲む準備
     let game = createGame(9);
-    
+
     // 白石を(4,4)に配置
     game = playMove(game, { type: "pass" }).success
       ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -478,7 +481,7 @@ describe("playMove - 石の取得", () => {
           }
         ).state
       : game;
-    
+
     // 黒石で3方向から囲む
     game = playMove(game, { type: "play", position: { x: 4, y: 3 } }).success
       ? (
@@ -528,7 +531,7 @@ describe("playMove - 石の取得", () => {
   it("Given: (4,4)と(5,4)の白石2個が黒石で囲まれた状態 / When: 最後の包囲点(5,5)に黒石を打つ / Then: 白石グループが取られる", () => {
     // Arrange - 白石2つを横に並べて黒石で囲む
     let game = createGame(9);
-    
+
     // 白石2つを並べる
     game = playMove(game, { type: "pass" }).success
       ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -552,7 +555,7 @@ describe("playMove - 石の取得", () => {
           }
         ).state
       : game;
-    
+
     // 黒石で囲む
     game = playMove(game, { type: "play", position: { x: 4, y: 3 } }).success
       ? (
@@ -625,7 +628,7 @@ describe("playMove - 石の取得", () => {
   it("Given: 縦5個の白石グループが黒石で囲まれた状態 / When: 最後の包囲点(4,5)に黒石を打つ / Then: 白石グループ全体が取られる", () => {
     // Arrange - 白石5つを縦に並べて黒石で囲む
     let game = createGame(9);
-    
+
     // 白石5つを縦に並べる (x=4, y=0-4)
     for (let y = 0; y < 5; y++) {
       game = playMove(game, { type: "pass" }).success
@@ -640,7 +643,7 @@ describe("playMove - 石の取得", () => {
           ).state
         : game;
     }
-    
+
     // 黒石で囲む (左側)
     for (let y = 0; y < 5; y++) {
       game = playMove(game, { type: "play", position: { x: 3, y } }).success
@@ -655,7 +658,7 @@ describe("playMove - 石の取得", () => {
         ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
         : game;
     }
-    
+
     // 黒石で囲む (右側)
     for (let y = 0; y < 5; y++) {
       game = playMove(game, { type: "play", position: { x: 5, y } }).success
@@ -687,7 +690,7 @@ describe("playMove - 石の取得", () => {
   it("Given: (3,4)と(5,4)の独立した白石2個が黒石で囲まれた状態 / When: 中央(4,4)に黒石を打つ / Then: 両方の白石グループが同時に取られる", () => {
     // Arrange - 2つの独立した白石を配置して両方を黒石で囲む
     let game = createGame(9);
-    
+
     // 2つの独立した白石を配置
     game = playMove(game, { type: "pass" }).success
       ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -711,7 +714,7 @@ describe("playMove - 石の取得", () => {
           }
         ).state
       : game;
-    
+
     // 両方を黒石で囲む
     game = playMove(game, { type: "play", position: { x: 3, y: 3 } }).success
       ? (
@@ -820,7 +823,7 @@ describe("playMove - 勝敗判定", () => {
     it("Given: 黒石1個が盤上にある状態 / When: 2連続でパスする / Then: 黒の勝利で終局する", () => {
       // Arrange
       let game = createGame(9);
-      
+
       // 黒が1つ置く
       game = playMove(game, { type: "play", position: { x: 4, y: 4 } }).success
         ? (
@@ -830,7 +833,7 @@ describe("playMove - 勝敗判定", () => {
             }
           ).state
         : game;
-      
+
       // パス1回目
       game = playMove(game, { type: "pass" }).success
         ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -850,12 +853,12 @@ describe("playMove - 勝敗判定", () => {
     it("Given: 白石1個が盤上にある状態 / When: 2連続でパスする / Then: 白の勝利で終局する", () => {
       // Arrange
       let game = createGame(9);
-      
+
       // 黒パス
       game = playMove(game, { type: "pass" }).success
         ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
         : game;
-      
+
       // 白が1つ置く
       game = playMove(game, { type: "play", position: { x: 4, y: 4 } }).success
         ? (
@@ -865,7 +868,7 @@ describe("playMove - 勝敗判定", () => {
             }
           ).state
         : game;
-      
+
       // パス1回目
       game = playMove(game, { type: "pass" }).success
         ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
@@ -903,7 +906,7 @@ describe("playMove - 勝敗判定", () => {
     it("Given: 黒が1手打った後の状態 / When: 白が投了する / Then: 黒が勝利する", () => {
       // Arrange
       let game = createGame(9);
-      
+
       // 黒番で適当に置く
       game = playMove(game, { type: "play", position: { x: 0, y: 0 } }).success
         ? (
@@ -913,7 +916,7 @@ describe("playMove - 勝敗判定", () => {
             }
           ).state
         : game;
-      
+
       const resign: Move = { type: "resign" };
 
       // Act - 白番で投了
@@ -974,7 +977,7 @@ describe("playMove - イミュータブル性", () => {
     if (!result1.success) return;
 
     const game2 = result1.state;
-    
+
     // Act - 2手目
     const result2 = playMove(game2, { type: "play", position: { x: 1, y: 1 } });
     expect(result2.success).toBe(true);

@@ -1,13 +1,11 @@
 import type { Cell, Color, Position } from "./types.js";
 
-
 /**
  * 指定サイズの空の盤面を作成
  * @param size 盤面のサイズ
  * @returns すべてのセルがnullで初期化された2次元配列
  */
 export function createEmptyBoard(size: number): Cell[][] {
-
   return Array.from({ length: size }, () => Array(size).fill(null));
 }
 
