@@ -13,78 +13,207 @@ import {
 } from "../src/board.js";
 
 describe("createEmptyBoard", () => {
-  describe("正常系", () => {
-    it.each([2, 7, 9, 13, 19])("%i路盤が作成できること", (size) => {
+  
+    it.each([2, 7, 9, 13, 19])("Given: 盤面サイズ%iを指定 / When: 空盤面を作成 / Then: 指定サイズの盤面が作成される", (size) => {
+      // Arrange - 準備は不要（引数として渡すのみ）
+
+      // Act
       const board = createEmptyBoard(size);
+
+      // Assert
       expect(board).toHaveLength(size);
       expect(board[0]).toHaveLength(size);
     });
 
-    it("全てのセルがnullであること", () => {
+    it("Given: 9路盤を作成 / When: 盤面の全セルを確認 / Then: 全てのセルがnullである", () => {
+      // Arrange & Act
       const board = createEmptyBoard(9);
+
+      // Assert
       for (const row of board) {
         for (const cell of row) {
           expect(cell).toBeNull();
         }
       }
     });
-  });
+
 });
 
 describe("isValidPosition", () => {
-  it("盤内の座標でtrueを返すこと", () => {
-    expect(isValidPosition(9, { x: 0, y: 0 })).toBe(true);
-    expect(isValidPosition(9, { x: 4, y: 4 })).toBe(true);
-    expect(isValidPosition(9, { x: 8, y: 8 })).toBe(true);
+  describe("盤内の座標", () => {
+    it("Given: 9路盤 / When: 左上角(0,0)の座標を検証 / Then: trueを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: 0, y: 0 };
+
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it("Given: 9路盤 / When: 中央(4,4)の座標を検証 / Then: trueを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: 4, y: 4 };
+
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it("Given: 9路盤 / When: 右下角(8,8)の座標を検証 / Then: trueを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: 8, y: 8 };
+
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(true);
+    });
   });
 
-  it("負の座標でfalseを返すこと", () => {
-    expect(isValidPosition(9, { x: -1, y: 0 })).toBe(false);
-    expect(isValidPosition(9, { x: 0, y: -1 })).toBe(false);
-    expect(isValidPosition(9, { x: -1, y: -1 })).toBe(false);
-  });
+  describe("盤外の座標", () => {
+    it("Given: 9路盤 / When: x座標が負(-1,0)の座標を検証 / Then: falseを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: -1, y: 0 };
 
-  it("盤サイズ以上の座標でfalseを返すこと", () => {
-    expect(isValidPosition(9, { x: 9, y: 0 })).toBe(false);
-    expect(isValidPosition(9, { x: 0, y: 9 })).toBe(false);
-    expect(isValidPosition(9, { x: 9, y: 9 })).toBe(false);
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("Given: 9路盤 / When: y座標が負(0,-1)の座標を検証 / Then: falseを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: 0, y: -1 };
+
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("Given: 9路盤 / When: 両座標が負(-1,-1)の座標を検証 / Then: falseを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: -1, y: -1 };
+
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("Given: 9路盤 / When: x座標が盤サイズ以上(9,0)の座標を検証 / Then: falseを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: 9, y: 0 };
+
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("Given: 9路盤 / When: y座標が盤サイズ以上(0,9)の座標を検証 / Then: falseを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: 0, y: 9 };
+
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it("Given: 9路盤 / When: 両座標が盤サイズ以上(9,9)の座標を検証 / Then: falseを返す", () => {
+      // Arrange
+      const size = 9;
+      const position = { x: 9, y: 9 };
+
+      // Act
+      const result = isValidPosition(size, position);
+
+      // Assert
+      expect(result).toBe(false);
+    });
   });
 });
 
 describe("placeStone", () => {
-  it("正しく石が配置されること", () => {
+  it("Given: 空の9路盤 / When: (4,4)に黒石を配置 / Then: 指定位置に黒石が配置される", () => {
+    // Arrange
     const board = createEmptyBoard(9);
+
+    // Act
     const newBoard = placeStone(board, { x: 4, y: 4 }, "black");
+
+    // Assert
     expect(newBoard[4][4]).toBe("black");
   });
 
-  it("イミュータブル性：元の盤面が変更されないこと", () => {
+  it("Given: 空の9路盤 / When: (4,4)に黒石を配置 / Then: 元の盤面は変更されない（イミュータブル性）", () => {
+    // Arrange
     const board = createEmptyBoard(9);
+
+    // Act
     const newBoard = placeStone(board, { x: 4, y: 4 }, "black");
+
+    // Assert
     expect(board[4][4]).toBeNull();
     expect(newBoard[4][4]).toBe("black");
   });
 
-  it("構造共有：変更されていない行が同一参照であること", () => {
+  it("Given: 空の9路盤 / When: (4,4)に黒石を配置 / Then: 変更されていない行は同一参照を保つ（構造共有）", () => {
+    // Arrange
     const board = createEmptyBoard(9);
+
+    // Act
     const newBoard = placeStone(board, { x: 4, y: 4 }, "black");
+
+    // Assert
     expect(newBoard[0]).toBe(board[0]);
     expect(newBoard[3]).toBe(board[3]);
     expect(newBoard[4]).not.toBe(board[4]);
   });
 
-  it("複数の石を配置できること", () => {
+  it("Given: 空の9路盤 / When: (0,0)に黒石、(1,1)に白石を順に配置 / Then: 両方の石が正しく配置される", () => {
+    // Arrange
     const board = createEmptyBoard(9);
+
+    // Act
     const board1 = placeStone(board, { x: 0, y: 0 }, "black");
     const board2 = placeStone(board1, { x: 1, y: 1 }, "white");
+
+    // Assert
     expect(board2[0][0]).toBe("black");
     expect(board2[1][1]).toBe("white");
   });
 });
 
 describe("getNeighbors", () => {
-  it("中央の座標で4方向の隣接座標が返ること", () => {
-    const neighbors = getNeighbors(9, { x: 4, y: 4 });
+  it("Given: 9路盤 / When: 中央(4,4)の隣接座標を取得 / Then: 4方向の隣接座標が返される", () => {
+    // Arrange
+    const size = 9;
+    const position = { x: 4, y: 4 };
+
+    // Act
+    const neighbors = getNeighbors(size, position);
+
+    // Assert
     expect(neighbors).toHaveLength(4);
     expect(neighbors).toContainEqual({ x: 4, y: 3 }); // 上
     expect(neighbors).toContainEqual({ x: 5, y: 4 }); // 右
@@ -92,22 +221,43 @@ describe("getNeighbors", () => {
     expect(neighbors).toContainEqual({ x: 3, y: 4 }); // 左
   });
 
-  it("左上角の座標で2方向の隣接座標が返ること", () => {
-    const neighbors = getNeighbors(9, { x: 0, y: 0 });
+  it("Given: 9路盤 / When: 左上角(0,0)の隣接座標を取得 / Then: 2方向の隣接座標が返される", () => {
+    // Arrange
+    const size = 9;
+    const position = { x: 0, y: 0 };
+
+    // Act
+    const neighbors = getNeighbors(size, position);
+
+    // Assert
     expect(neighbors).toHaveLength(2);
     expect(neighbors).toContainEqual({ x: 1, y: 0 }); // 右
     expect(neighbors).toContainEqual({ x: 0, y: 1 }); // 下
   });
 
-  it("右下角の座標で2方向の隣接座標が返ること", () => {
-    const neighbors = getNeighbors(9, { x: 8, y: 8 });
+  it("Given: 9路盤 / When: 右下角(8,8)の隣接座標を取得 / Then: 2方向の隣接座標が返される", () => {
+    // Arrange
+    const size = 9;
+    const position = { x: 8, y: 8 };
+
+    // Act
+    const neighbors = getNeighbors(size, position);
+
+    // Assert
     expect(neighbors).toHaveLength(2);
     expect(neighbors).toContainEqual({ x: 8, y: 7 }); // 上
     expect(neighbors).toContainEqual({ x: 7, y: 8 }); // 左
   });
 
-  it("辺の座標で3方向の隣接座標が返ること", () => {
-    const neighbors = getNeighbors(9, { x: 4, y: 0 });
+  it("Given: 9路盤 / When: 上辺(4,0)の隣接座標を取得 / Then: 3方向の隣接座標が返される", () => {
+    // Arrange
+    const size = 9;
+    const position = { x: 4, y: 0 };
+
+    // Act
+    const neighbors = getNeighbors(size, position);
+
+    // Assert
     expect(neighbors).toHaveLength(3);
     expect(neighbors).toContainEqual({ x: 5, y: 0 }); // 右
     expect(neighbors).toContainEqual({ x: 4, y: 1 }); // 下
@@ -116,151 +266,233 @@ describe("getNeighbors", () => {
 });
 
 describe("findGroup", () => {
-  it("単独の石で1つの要素を返すこと", () => {
+  it("Given: (4,4)に黒石1個が配置された9路盤 / When: (4,4)のグループを検索 / Then: 1個の石を持つグループが返される", () => {
+    // Arrange
     const board = placeStone(createEmptyBoard(9), { x: 4, y: 4 }, "black");
+
+    // Act
     const group = findGroup(board, { x: 4, y: 4 });
+
+    // Assert
     expect(group).toHaveLength(1);
     expect(group).toContainEqual({ x: 4, y: 4 });
   });
 
-  it("空のセルで空配列を返すこと", () => {
+  it("Given: 空の9路盤 / When: (4,4)のグループを検索 / Then: 空配列が返される", () => {
+    // Arrange
     const board = createEmptyBoard(9);
+
+    // Act
     const group = findGroup(board, { x: 4, y: 4 });
+
+    // Assert
     expect(group).toHaveLength(0);
   });
 
-  it("2つ連結した石グループを正しく検出すること", () => {
+  it("Given: (4,4)と(5,4)に黒石が連結している9路盤 / When: (4,4)のグループを検索 / Then: 2個の石を持つグループが返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "black");
+
+    // Act
     const group = findGroup(board, { x: 4, y: 4 });
+
+    // Assert
     expect(group).toHaveLength(2);
     expect(group).toContainEqual({ x: 4, y: 4 });
     expect(group).toContainEqual({ x: 5, y: 4 });
   });
 
-  it("L字型の連結グループを正しく検出すること", () => {
+  it("Given: L字型に連結した黒石3個の9路盤 / When: (4,4)のグループを検索 / Then: 3個の石を持つグループが返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 5 }, "black");
+
+    // Act
     const group = findGroup(board, { x: 4, y: 4 });
+
+    // Assert
     expect(group).toHaveLength(3);
     expect(group).toContainEqual({ x: 4, y: 4 });
     expect(group).toContainEqual({ x: 5, y: 4 });
     expect(group).toContainEqual({ x: 5, y: 5 });
   });
 
-  it("大きなグループを正しく検出すること", () => {
+  it("Given: 白石5個が縦に連結した9路盤 / When: (4,2)のグループを検索 / Then: 5個の石を持つグループが返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
-    // 5つの石を縦に並べる
     for (let y = 0; y < 5; y++) {
       board = placeStone(board, { x: 4, y }, "white");
     }
+
+    // Act
     const group = findGroup(board, { x: 4, y: 2 });
+
+    // Assert
     expect(group).toHaveLength(5);
   });
 
-  it("異なる色の石は別グループとして扱うこと", () => {
+  it("Given: (4,4)に黒石、(5,4)に白石が配置された9路盤 / When: (4,4)のグループを検索 / Then: 黒石1個のみのグループが返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "white");
+
+    // Act
     const group = findGroup(board, { x: 4, y: 4 });
+
+    // Assert
     expect(group).toHaveLength(1);
     expect(group).toContainEqual({ x: 4, y: 4 });
   });
 });
 
 describe("countLiberties", () => {
-  it("中央の単独の石で4つの呼吸点を返すこと", () => {
+  it("Given: 中央(4,4)に黒石1個の9路盤 / When: 呼吸点を数える / Then: 4つの呼吸点が返される", () => {
+    // Arrange
     const board = placeStone(createEmptyBoard(9), { x: 4, y: 4 }, "black");
+
+    // Act
     const liberties = countLiberties(board, { x: 4, y: 4 });
+
+    // Assert
     expect(liberties).toBe(4);
   });
 
-  it("角の単独の石で2つの呼吸点を返すこと", () => {
+  it("Given: 左上角(0,0)に黒石1個の9路盤 / When: 呼吸点を数える / Then: 2つの呼吸点が返される", () => {
+    // Arrange
     const board = placeStone(createEmptyBoard(9), { x: 0, y: 0 }, "black");
+
+    // Act
     const liberties = countLiberties(board, { x: 0, y: 0 });
+
+    // Assert
     expect(liberties).toBe(2);
   });
 
-  it("2つ連結した石グループで6つの呼吸点を返すこと", () => {
+  it("Given: (4,4)と(5,4)に黒石が連結した9路盤 / When: 呼吸点を数える / Then: 6つの呼吸点が返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "black");
+
+    // Act
     const liberties = countLiberties(board, { x: 4, y: 4 });
+
+    // Assert
     expect(liberties).toBe(6);
   });
 
-  it("囲まれたグループで呼吸点0を返すこと", () => {
+  it("Given: (4,4)の白石が黒石で完全に囲まれた9路盤 / When: 呼吸点を数える / Then: 0が返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
-    // 中央に白石を置く
     board = placeStone(board, { x: 4, y: 4 }, "white");
-    // 周囲を黒石で囲む
     board = placeStone(board, { x: 4, y: 3 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "black");
     board = placeStone(board, { x: 4, y: 5 }, "black");
     board = placeStone(board, { x: 3, y: 4 }, "black");
+
+    // Act
     const liberties = countLiberties(board, { x: 4, y: 4 });
+
+    // Assert
     expect(liberties).toBe(0);
   });
 
-  it("L字型グループの呼吸点を正しくカウントすること", () => {
+  it("Given: L字型の黒石グループ3個の9路盤 / When: 呼吸点を数える / Then: 7つの呼吸点が返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 5 }, "black");
+
+    // Act
     const liberties = countLiberties(board, { x: 4, y: 4 });
+
+    // Assert
     expect(liberties).toBe(7);
   });
 
-  it("敵の石で一部囲まれたグループの呼吸点を正しくカウントすること", () => {
+  it("Given: (4,4)の黒石の上に白石がある9路盤 / When: 呼吸点を数える / Then: 3つの呼吸点が返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
-    board = placeStone(board, { x: 4, y: 3 }, "white"); // 上に白石
+    board = placeStone(board, { x: 4, y: 3 }, "white");
+
+    // Act
     const liberties = countLiberties(board, { x: 4, y: 4 });
-    expect(liberties).toBe(3); // 右、下、左のみ
+
+    // Assert
+    expect(liberties).toBe(3);
   });
 });
 
 describe("removeStones", () => {
-  it("指定位置の石が削除されること", () => {
+  it("Given: (4,4)に黒石がある9路盤 / When: (4,4)の石を削除 / Then: (4,4)がnullになる", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
+
+    // Act
     const newBoard = removeStones(board, [{ x: 4, y: 4 }]);
+
+    // Assert
     expect(newBoard[4][4]).toBeNull();
   });
 
-  it("イミュータブル性：元の盤面が変更されないこと", () => {
+  it("Given: (4,4)に黒石がある9路盤 / When: (4,4)の石を削除 / Then: 元の盤面は変更されない（イミュータブル性）", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
+
+    // Act
     const newBoard = removeStones(board, [{ x: 4, y: 4 }]);
+
+    // Assert
     expect(board[4][4]).toBe("black");
     expect(newBoard[4][4]).toBeNull();
   });
 
-  it("複数の石を削除できること", () => {
+  it("Given: (4,4)に黒石、(5,5)に白石がある9路盤 / When: 両方の石を削除 / Then: 両方の位置がnullになる", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 5 }, "white");
+
+    // Act
     const newBoard = removeStones(board, [
       { x: 4, y: 4 },
       { x: 5, y: 5 },
     ]);
+
+    // Assert
     expect(newBoard[4][4]).toBeNull();
     expect(newBoard[5][5]).toBeNull();
   });
 
-  it("空配列を渡すと盤面がそのまま返ること", () => {
+  it("Given: 空の9路盤 / When: 空配列で削除 / Then: 同じ盤面参照が返される", () => {
+    // Arrange
     const board = createEmptyBoard(9);
+
+    // Act
     const newBoard = removeStones(board, []);
+
+    // Assert
     expect(newBoard).toBe(board);
   });
 
-  it("構造共有：変更されていない行が同一参照であること", () => {
+  it("Given: (4,4)に黒石がある9路盤 / When: (4,4)の石を削除 / Then: 変更されていない行は同一参照を保つ（構造共有）", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
+
+    // Act
     const newBoard = removeStones(board, [{ x: 4, y: 4 }]);
+
+    // Assert
     expect(newBoard[0]).toBe(board[0]);
     expect(newBoard[3]).toBe(board[3]);
     expect(newBoard[4]).not.toBe(board[4]);
@@ -268,45 +500,54 @@ describe("removeStones", () => {
 });
 
 describe("captureStones", () => {
-  it("呼吸点0のグループが取られること", () => {
+  it("Given: (4,4)の白石が黒石で完全に囲まれた9路盤 / When: 最後の包囲点(4,5)に黒石を配置 / Then: 白石が取られる", () => {
+    // Arrange
     let board = createEmptyBoard(9);
-    // 白石を置く
     board = placeStone(board, { x: 4, y: 4 }, "white");
-    // 周囲3方を黒石で囲む
     board = placeStone(board, { x: 4, y: 3 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "black");
     board = placeStone(board, { x: 3, y: 4 }, "black");
-    // 最後の一手を置いてから取る
     board = placeStone(board, { x: 4, y: 5 }, "black");
+
+    // Act
     const result = captureStones(board, { x: 4, y: 5 }, "black");
+
+    // Assert
     expect(result.captured).toHaveLength(1);
     expect(result.captured).toContainEqual({ x: 4, y: 4 });
     expect(result.board[4][4]).toBeNull();
   });
 
-  it("呼吸点がある場合は取られないこと", () => {
+  it("Given: (4,4)の白石の上に黒石がある9路盤 / When: 黒石を配置 / Then: 白石は取られない", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "white");
     board = placeStone(board, { x: 4, y: 3 }, "black");
+
+    // Act
     const result = captureStones(board, { x: 4, y: 3 }, "black");
+
+    // Assert
     expect(result.captured).toHaveLength(0);
     expect(result.board[4][4]).toBe("white");
   });
 
-  it("複数の石からなるグループを取れること", () => {
+  it("Given: (4,4)と(5,4)の白石2個が黒石で囲まれた9路盤 / When: 最後の包囲点(4,5)に黒石を配置 / Then: 白石グループ2個が取られる", () => {
+    // Arrange
     let board = createEmptyBoard(9);
-    // 白石2つを並べる (y=4, x=4,5)
     board = placeStone(board, { x: 4, y: 4 }, "white");
     board = placeStone(board, { x: 5, y: 4 }, "white");
-    // 周囲を黒石で囲む
-    board = placeStone(board, { x: 4, y: 3 }, "black"); // 上
-    board = placeStone(board, { x: 5, y: 3 }, "black"); // 上
-    board = placeStone(board, { x: 6, y: 4 }, "black"); // 右
-    board = placeStone(board, { x: 5, y: 5 }, "black"); // 下
-    board = placeStone(board, { x: 3, y: 4 }, "black"); // 左
-    board = placeStone(board, { x: 4, y: 5 }, "black"); // 下
-    // 最後の一手で白石2つを取る
+    board = placeStone(board, { x: 4, y: 3 }, "black");
+    board = placeStone(board, { x: 5, y: 3 }, "black");
+    board = placeStone(board, { x: 6, y: 4 }, "black");
+    board = placeStone(board, { x: 5, y: 5 }, "black");
+    board = placeStone(board, { x: 3, y: 4 }, "black");
+    board = placeStone(board, { x: 4, y: 5 }, "black");
+
+    // Act
     const result = captureStones(board, { x: 4, y: 5 }, "black");
+
+    // Assert
     expect(result.captured).toHaveLength(2);
     expect(result.captured).toContainEqual({ x: 4, y: 4 });
     expect(result.captured).toContainEqual({ x: 5, y: 4 });
@@ -314,129 +555,179 @@ describe("captureStones", () => {
     expect(result.board[4][5]).toBeNull();
   });
 
-  it("複数の異なるグループを同時に取れること", () => {
+  it("Given: (3,4)と(5,4)の独立した白石2個が黒石で囲まれた9路盤 / When: 中央(4,4)に黒石を配置 / Then: 両方の白石グループが取られる", () => {
+    // Arrange
     let board = createEmptyBoard(9);
-    // 2つの独立した白石
     board = placeStone(board, { x: 3, y: 4 }, "white");
     board = placeStone(board, { x: 5, y: 4 }, "white");
-    // 両方を囲む
     board = placeStone(board, { x: 3, y: 3 }, "black");
     board = placeStone(board, { x: 2, y: 4 }, "black");
     board = placeStone(board, { x: 3, y: 5 }, "black");
     board = placeStone(board, { x: 5, y: 3 }, "black");
     board = placeStone(board, { x: 6, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 5 }, "black");
-    // 中央に置いて両方を取る
     board = placeStone(board, { x: 4, y: 4 }, "black");
+
+    // Act
     const result = captureStones(board, { x: 4, y: 4 }, "black");
+
+    // Assert
     expect(result.captured).toHaveLength(2);
     expect(result.board[3][4]).toBeNull();
     expect(result.board[5][4]).toBeNull();
   });
 
-  it("自分の色の石は取られないこと", () => {
+  it("Given: (4,4)と(5,4)に黒石がある9路盤 / When: (5,4)に黒石を配置 / Then: 自分の色の石は取られない", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "black");
+
+    // Act
     const result = captureStones(board, { x: 5, y: 4 }, "black");
+
+    // Assert
     expect(result.captured).toHaveLength(0);
-    // 取られていないので元の盤面と同じ
     expect(result.board).toBe(board);
   });
 });
 
 describe("wouldBeSuicide", () => {
-  it("囲まれた位置への着手は自殺手と判定されること", () => {
+  it("Given: (4,4)が白石で完全に囲まれた9路盤 / When: (4,4)に黒石を置く判定 / Then: 自殺手と判定される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
-    // 4方を白石で囲む
     board = placeStone(board, { x: 4, y: 3 }, "white");
     board = placeStone(board, { x: 5, y: 4 }, "white");
     board = placeStone(board, { x: 4, y: 5 }, "white");
     board = placeStone(board, { x: 3, y: 4 }, "white");
+
+    // Act
     const isSuicide = wouldBeSuicide(board, { x: 4, y: 4 }, "black");
+
+    // Assert
     expect(isSuicide).toBe(true);
   });
 
-  it("相手を取る手は自殺手でないこと", () => {
+  it("Given: (4,4)の白石が黒石で3方向から囲まれた9路盤 / When: 最後の包囲点(4,5)に黒石を置く判定 / Then: 自殺手ではないと判定される（相手を取る手）", () => {
+    // Arrange
     let board = createEmptyBoard(9);
-    // 白石を置く
     board = placeStone(board, { x: 4, y: 4 }, "white");
-    // 周囲3方を黒石で囲む
     board = placeStone(board, { x: 4, y: 3 }, "black");
     board = placeStone(board, { x: 5, y: 4 }, "black");
     board = placeStone(board, { x: 3, y: 4 }, "black");
-    // 最後の一手は白石を取るので自殺手ではない
+
+    // Act
     const isSuicide = wouldBeSuicide(board, { x: 4, y: 5 }, "black");
+
+    // Assert
     expect(isSuicide).toBe(false);
   });
 
-  it("既存グループと繋がる手は自殺手でないこと", () => {
+  it("Given: (5,4)に黒石があり(4,4)が白石で3方向から囲まれた9路盤 / When: (4,4)に黒石を置く判定 / Then: 自殺手ではないと判定される（既存グループと繋がる）", () => {
+    // Arrange
     let board = createEmptyBoard(9);
-    // 黒石のグループを作る
     board = placeStone(board, { x: 5, y: 4 }, "black");
-    // 周囲を白石で囲む
     board = placeStone(board, { x: 4, y: 3 }, "white");
     board = placeStone(board, { x: 4, y: 5 }, "white");
     board = placeStone(board, { x: 3, y: 4 }, "white");
-    // (4,4)に置くと(5,4)と繋がり、グループとして呼吸点があるので自殺手ではない
+
+    // Act
     const isSuicide = wouldBeSuicide(board, { x: 4, y: 4 }, "black");
+
+    // Assert
     expect(isSuicide).toBe(false);
   });
 
-  it("呼吸点がある位置は自殺手でないこと", () => {
+  it("Given: 空の9路盤 / When: (4,4)に黒石を置く判定 / Then: 自殺手ではないと判定される", () => {
+    // Arrange
     const board = createEmptyBoard(9);
+
+    // Act
     const isSuicide = wouldBeSuicide(board, { x: 4, y: 4 }, "black");
+
+    // Assert
     expect(isSuicide).toBe(false);
   });
 
-  it("角で囲まれた位置は自殺手と判定されること", () => {
+  it("Given: 左上角(0,0)が白石で囲まれた9路盤 / When: (0,0)に黒石を置く判定 / Then: 自殺手と判定される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 1, y: 0 }, "white");
     board = placeStone(board, { x: 0, y: 1 }, "white");
+
+    // Act
     const isSuicide = wouldBeSuicide(board, { x: 0, y: 0 }, "black");
+
+    // Assert
     expect(isSuicide).toBe(true);
   });
 });
 
 describe("countStones", () => {
-  it("空盤面で0:0を返すこと", () => {
+  it("Given: 空の9路盤 / When: 石をカウント / Then: 黒0:白0が返される", () => {
+    // Arrange
     const board = createEmptyBoard(9);
+
+    // Act
     const count = countStones(board);
+
+    // Assert
     expect(count).toEqual({ black: 0, white: 0 });
   });
 
-  it("黒石1つを配置した後のカウントが正しいこと", () => {
+  it("Given: (4,4)に黒石1個がある9路盤 / When: 石をカウント / Then: 黒1:白0が返される", () => {
+    // Arrange
     const board = placeStone(createEmptyBoard(9), { x: 4, y: 4 }, "black");
+
+    // Act
     const count = countStones(board);
+
+    // Assert
     expect(count).toEqual({ black: 1, white: 0 });
   });
 
-  it("白石1つを配置した後のカウントが正しいこと", () => {
+  it("Given: (4,4)に白石1個がある9路盤 / When: 石をカウント / Then: 黒0:白1が返される", () => {
+    // Arrange
     const board = placeStone(createEmptyBoard(9), { x: 4, y: 4 }, "white");
+
+    // Act
     const count = countStones(board);
+
+    // Assert
     expect(count).toEqual({ black: 0, white: 1 });
   });
 
-  it("黒白両方の石を配置した後のカウントが正しいこと", () => {
+  it("Given: 黒石1個と白石1個がある9路盤 / When: 石をカウント / Then: 黒1:白1が返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 4, y: 4 }, "black");
     board = placeStone(board, { x: 5, y: 5 }, "white");
+
+    // Act
     const count = countStones(board);
+
+    // Assert
     expect(count).toEqual({ black: 1, white: 1 });
   });
 
-  it("複数の石を配置した後のカウントが正しいこと", () => {
+  it("Given: 黒石3個と白石2個がある9路盤 / When: 石をカウント / Then: 黒3:白2が返される", () => {
+    // Arrange
     let board = createEmptyBoard(9);
     board = placeStone(board, { x: 0, y: 0 }, "black");
     board = placeStone(board, { x: 1, y: 1 }, "black");
     board = placeStone(board, { x: 2, y: 2 }, "black");
     board = placeStone(board, { x: 3, y: 3 }, "white");
     board = placeStone(board, { x: 4, y: 4 }, "white");
+
+    // Act
     const count = countStones(board);
+
+    // Assert
     expect(count).toEqual({ black: 3, white: 2 });
   });
 
-  it("盤面全体に石を配置した後のカウントが正しいこと", () => {
+  it("Given: 3路盤全体に黒5個と白4個の石がある盤面 / When: 石をカウント / Then: 黒5:白4が返される", () => {
+    // Arrange
     let board = createEmptyBoard(3);
     board = placeStone(board, { x: 0, y: 0 }, "black");
     board = placeStone(board, { x: 1, y: 0 }, "white");
@@ -447,7 +738,11 @@ describe("countStones", () => {
     board = placeStone(board, { x: 0, y: 2 }, "black");
     board = placeStone(board, { x: 1, y: 2 }, "white");
     board = placeStone(board, { x: 2, y: 2 }, "black");
+
+    // Act
     const count = countStones(board);
+
+    // Assert
     expect(count).toEqual({ black: 5, white: 4 });
   });
 });
