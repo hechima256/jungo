@@ -13,25 +13,27 @@ import {
 } from "../src/board.js";
 
 describe("createEmptyBoard", () => {
-  it("指定サイズの空盤面が作成されること", () => {
-    const board = createEmptyBoard(9);
-    expect(board).toHaveLength(9);
-    expect(board[0]).toHaveLength(9);
-  });
+  describe("正常系", () => {
+    it.each([2, 7, 9, 13, 19])("%i路盤が作成できること", (size) => {
+      const board = createEmptyBoard(size);
+      expect(board).toHaveLength(size);
+      expect(board[0]).toHaveLength(size);
+    });
 
-  it("全てのセルがnullであること", () => {
-    const board = createEmptyBoard(9);
-    for (const row of board) {
-      for (const cell of row) {
-        expect(cell).toBeNull();
+    it("全てのセルがnullであること", () => {
+      const board = createEmptyBoard(9);
+      for (const row of board) {
+        for (const cell of row) {
+          expect(cell).toBeNull();
+        }
       }
-    }
+    });
   });
 
-  it("19路盤が正しく作成されること", () => {
-    const board = createEmptyBoard(19);
-    expect(board).toHaveLength(19);
-    expect(board[0]).toHaveLength(19);
+  describe("異常系", () => {
+    it.each([1, 0, -1])("サイズ%iでエラーが発生すること", (size) => {
+      expect(() => createEmptyBoard(size)).toThrow();
+    });
   });
 });
 
