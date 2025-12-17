@@ -1,4 +1,4 @@
-![CI](https://github.com/ユーザー名/jungo/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/hechima256/jungo/actions/workflows/ci.yml/badge.svg)
 
 # jungo
 
