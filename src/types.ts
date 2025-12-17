@@ -16,7 +16,6 @@ export type GameState = {
   readonly lastMove: (Move & { readonly color: Color }) | null;
   readonly isOver: boolean;
   readonly winner: Color | "draw" | null;
-  
   readonly stoneCount: { readonly black: number; readonly white: number };
 };
 
