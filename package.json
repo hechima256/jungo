@@ -21,8 +21,7 @@
     "test:coverage": "vitest --coverage",
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "check": "biome check --write .",
-    "typecheck": "tsc --noEmit"
+    "check": "biome check --write ."
   },
   "keywords": [
     "go",
