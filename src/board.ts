@@ -8,8 +8,8 @@ const MIN_BOARD_SIZE = 2;
  * @returns すべてのセルがnullで初期化された2次元配列
  */
 export function createEmptyBoard(size: number): Cell[][] {
-  if (size < MIN_BOARD_SIZE) {
-    throw new Error(`Board size must be at least ${MIN_BOARD_SIZE}`);
+  if (!Number.isInteger(size) || size < MIN_BOARD_SIZE) {
+    throw new Error(`Invalid board size: ${size}. Must be an integer >= ${MIN_BOARD_SIZE}.`);
   }
   return Array.from({ length: size }, () => Array(size).fill(null));
 }
