@@ -16,7 +16,6 @@
   "files": [
     "dist"
   ],
-
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
@@ -29,7 +28,9 @@
     "format:fix": "biome format --write .",
     "check": "biome check .",
     "check:fix": "biome check --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "docs": "typedoc",
+    "docs:watch": "typedoc --watch"
   },
   "keywords": [
     "go",
@@ -45,6 +46,7 @@
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.15",
     "tsup": "^8.5.1",
+    "typedoc": "^0.28.15",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
   }
