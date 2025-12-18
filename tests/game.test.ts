@@ -926,6 +926,31 @@ describe("playMove - コウのルール", () => {
         expect(result.state.board[3][4]).toBe("white");
       }
     });
+    describe("盤の端でのコウ", () => {
+      it("Given: 端でのコウの形 / When: 石を取る / Then: koPointが正しく設定される", () => {
+        // Arrange - 盤の端でのコウの形を作る
+        const board = createBoardFromString(`
+            0 1 2 3 4
+          0 . . . . .
+          1 W . . . .
+          2 . W . . .
+          3 W B . . .
+          4 B . . . .
+        `);
+        const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+        
+        // Act - (0, 2)で白石を取る
+        const result = playMove(game, { type: "play", position: { x: 0, y: 2 } });
+
+        // Assert
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.state.koPoint).toEqual({ x: 0, y: 3 });
+          expect(result.state.board[3][0]).toBeNull(); // 白石が取られた
+        }
+      });
+
+    });
   });
 
   describe("コウにならないケース", () => {
