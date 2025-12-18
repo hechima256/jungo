@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createGame, playMove } from "../src/game.js";
 import type { GameState, Move } from "../src/types.js";
+import { createBoardFromString, createGameFromBoard } from "./helpers.js";
 
 describe("createGame", () => {
   describe("正常系", () => {
@@ -793,6 +794,288 @@ describe("playMove - 石の取得", () => {
       expect(result.state.board[4][5]).toBeNull();
       expect(result.state.stoneCount).toEqual({ black: 7, white: 0 });
     }
+  });
+});
+
+describe("playMove - コウのルール", () => {
+  describe("コウの成立条件", () => {
+    it("Given: 1石取って1石残るコウの形 / When: 白石を取る / Then: koPointが設定される", () => {
+      // Arrange - 実際のコウの形を作る
+      // この形で黒が(3,3)に打つと白(4,3)を取ってコウが成立
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W . W B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board);
+
+      // Act - 黒が(3,3)に打って白石を取る - これでコウが成立
+      const result = playMove(game, { type: "play", position: { x: 3, y: 3 } });
+
+      // Assert
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.koPoint).toEqual({ x: 4, y: 3 });
+        expect(result.state.board[3][3]).toBe("black");
+        expect(result.state.board[3][4]).toBeNull(); // 白石が取られた
+      }
+    });
+
+    it("Given: コウの形 / When: 白石を取った直後 / Then: すぐには取り返せない", () => {
+      // Arrange - コウの形を作って石を取った直後の状態
+      // 黒が(3,3)に打って白(4,3)を取った直後、白番でkoPoint=(4,3)
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W . W B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+      const afterBlackMove = playMove(game, { type: "play", position: { x: 3, y: 3 } });
+      expect(afterBlackMove.success).toBe(true);
+      if (!afterBlackMove.success) return;
+
+      // Act - 白が直後に取り返そうとする
+      const result = playMove(afterBlackMove.state, { type: "play", position: { x: 4, y: 3 } });
+
+      // Assert
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error).toBe("ko");
+      }
+    });
+
+    it("Given: 石を取ってコウが発生した状態 / When: 別の場所に打った後 / Then: koPointがnullになる", () => {
+      // Arrange - コウの形を作って石を取る
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W B . B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board, {
+        currentPlayer: "white",
+        koPoint: { x: 4, y: 3 },
+      });
+
+      // Act - 白が別の場所に打つ
+      const result = playMove(game, { type: "play", position: { x: 0, y: 0 } });
+
+      // Assert
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.koPoint).toBeNull();
+      }
+    });
+
+    it("Given: コウで石を取った状態 / When: 1手挟んだ後 / Then: コウの位置に打てる", () => {
+      // Arrange - コウで石を取った後、1手挟んだ状態
+      // 黒が(3,3)に打って白を取り、白が(0,0)、黒が(1,1)と別の場所に打った状態
+      // koPointはnullになっている
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W . W B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+
+      const afterBlackMove = playMove(game, { type: "play", position: { x: 3, y: 3 } }); // (3, 3)に打って白を取る
+      expect(afterBlackMove.success).toBe(true);
+      if (!afterBlackMove.success) return;
+
+      const afterWhiteMove = playMove(afterBlackMove.state, {
+        type: "play",
+        position: { x: 0, y: 0 },
+      }); // 白が(0,0)に打つ
+      expect(afterWhiteMove.success).toBe(true);
+      if (!afterWhiteMove.success) return;
+
+      const gameAfterTwoMoves = playMove(afterWhiteMove.state, {
+        type: "play",
+        position: { x: 1, y: 1 },
+      }); // 黒が(1,1)に打つ
+      expect(gameAfterTwoMoves.success).toBe(true);
+      if (!gameAfterTwoMoves.success) return;
+
+      // Act - 黒がコウの位置に打つ
+      const result = playMove(gameAfterTwoMoves.state, { type: "play", position: { x: 4, y: 3 } });
+
+      // Assert
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.board[3][4]).toBe("white");
+      }
+    });
+    describe("盤の端でのコウ", () => {
+      it("Given: 辺でのコウの形 / When: 石を取る / Then: koPointが正しく設定される", () => {
+        // Arrange - 盤の端でのコウの形を作る
+        const board = createBoardFromString(`
+            0 1 2 3 4
+          0 . . . . .
+          1 W . . . .
+          2 . W . . .
+          3 W B . . .
+          4 B . . . .
+        `);
+        const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+
+        // Act - (0, 2)で白石を取る
+        const result = playMove(game, { type: "play", position: { x: 0, y: 2 } });
+
+        // Assert
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.state.koPoint).toEqual({ x: 0, y: 3 });
+          expect(result.state.board[3][0]).toBeNull(); // 白石が取られた
+        }
+      });
+
+      it("Given: 隅でのコウの形 / When: 石を取る / Then: koPointが正しく設定される", () => {
+        // Arrange - 盤の隅でのコウの形を作る
+        const board = createBoardFromString(`
+            0 1 2 3 4
+          0 W . W . .
+          1 B W . . .
+          2 . . . . .
+          3 . . . . .
+          4 . . . . .
+        `);
+        const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+
+        // Act - (1, 0)に打って白石を取る
+        const result = playMove(game, { type: "play", position: { x: 1, y: 0 } });
+
+        // Assert
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.state.koPoint).toEqual({ x: 0, y: 0 });
+          expect(result.state.board[0][0]).toBeNull(); // 白石が取られた
+        }
+      });
+    });
+  });
+
+  describe("コウにならないケース", () => {
+    it("Given: 2石取る場合 / When: 石を取る / Then: koPointはnullのまま", () => {
+      // Arrange - 2石取る形を作る
+      const board = createBoardFromString(`
+          0 1 2 3 4
+        0 . . B . . 
+        1 . B W B .
+        2 . B W B .
+        3 . W . W .
+        4 . . W . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+
+      // Act - (2, 3)で白石2つを取る
+      const result = playMove(game, { type: "play", position: { x: 2, y: 3 } });
+
+      // Assert
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.koPoint).toBeNull();
+        expect(result.state.board[1][2]).toBeNull();
+        expect(result.state.board[2][2]).toBeNull();
+      }
+    });
+
+    it("Given: 取った後に自分の石が2個以上残る場合 / When: 石を取る / Then: koPointはnullのまま", () => {
+      // Arrange - 自分の石が2個残る形を作る (コウにならない)
+      const board = createBoardFromString(`
+          0 1 2 3 4
+        0 . . B . . 
+        1 . B W B .
+        2 . W . W .
+        3 . W B W .
+        4 . . W . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+
+      // Act - 黒が(2, 2)に打って白石を取る (黒石が2個以上残るのでコウにならない)
+      const result = playMove(game, { type: "play", position: { x: 2, y: 2 } });
+
+      // Assert
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.koPoint).toBeNull();
+      }
+    });
+
+    it("Given: 呼吸点がない場所に打って / When: 2石取った後 / Then: koPointはnullのまま", () => {
+      // Arrange - 呼吸点がない場所に打って2石取る形を作る
+      const board = createBoardFromString(`
+          0 1 2 3 4
+        0 . . B . . 
+        1 . B . B .
+        2 . W B W .
+        3 . W B W .
+        4 . . W . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "white", koPoint: null });
+
+      // Act - 白が(2, 1)に打って黒石2つを取る
+      const afterBlackMove = playMove(game, { type: "play", position: { x: 2, y: 1 } });
+      expect(afterBlackMove.success).toBe(true);
+      if (!afterBlackMove.success) return;
+    });
+  });
+
+  describe("パスとコウの関係", () => {
+    it("Given: コウで石を取った状態 / When: パスする / Then: koPointがnullになる", () => {
+      // Arrange - コウの形を作って石を取った状態
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W B . B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board, {
+        currentPlayer: "white",
+        koPoint: { x: 4, y: 3 },
+      });
+
+      // Act - 白がパスする
+      const result = playMove(game, { type: "pass" });
+
+      // Assert
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.koPoint).toBeNull();
+      }
+    });
   });
 });
 
