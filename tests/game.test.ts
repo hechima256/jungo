@@ -927,7 +927,7 @@ describe("playMove - コウのルール", () => {
       }
     });
     describe("盤の端でのコウ", () => {
-      it("Given: 端でのコウの形 / When: 石を取る / Then: koPointが正しく設定される", () => {
+      it("Given: 辺でのコウの形 / When: 石を取る / Then: koPointが正しく設定される", () => {
         // Arrange - 盤の端でのコウの形を作る
         const board = createBoardFromString(`
             0 1 2 3 4
@@ -950,6 +950,28 @@ describe("playMove - コウのルール", () => {
         }
       });
 
+      it("Given: 隅でのコウの形 / When: 石を取る / Then: koPointが正しく設定される", () => {
+        // Arrange - 盤の隅でのコウの形を作る
+        const board = createBoardFromString(`
+            0 1 2 3 4
+          0 W . W . .
+          1 B W . . .
+          2 . . . . .
+          3 . . . . .
+          4 . . . . .
+        `);
+        const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+        
+        // Act - (1, 0)に打って白石を取る
+        const result = playMove(game, { type: "play", position: { x: 1, y: 0 } });
+
+        // Assert
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.state.koPoint).toEqual({ x: 0, y: 0 });
+          expect(result.state.board[0][0]).toBeNull(); // 白石が取られた
+        }
+      });
     });
   });
 
