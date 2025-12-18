@@ -843,7 +843,7 @@ describe("playMove - コウのルール", () => {
         7 . . . . . . . . .
         8 . . . . . . . . .
       `);
-      const game = createGameFromBoard(board, {currentPlayer: "black", koPoint: null});
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
       const afterBlackMove = playMove(game, { type: "play", position: { x: 3, y: 3 } });
       expect(afterBlackMove.success).toBe(true);
       if (!afterBlackMove.success) return;
@@ -874,7 +874,7 @@ describe("playMove - コウのルール", () => {
       `);
       const game = createGameFromBoard(board, {
         currentPlayer: "white",
-        koPoint: { x: 4, y: 3 }
+        koPoint: { x: 4, y: 3 },
       });
 
       // Act - 白が別の場所に打つ
@@ -904,16 +904,22 @@ describe("playMove - コウのルール", () => {
         8 . . . . . . . . .
       `);
       const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
-      
+
       const afterBlackMove = playMove(game, { type: "play", position: { x: 3, y: 3 } }); // (3, 3)に打って白を取る
       expect(afterBlackMove.success).toBe(true);
       if (!afterBlackMove.success) return;
 
-      const afterWhiteMove = playMove(afterBlackMove.state, { type: "play", position: { x: 0, y: 0 } }); // 白が(0,0)に打つ
+      const afterWhiteMove = playMove(afterBlackMove.state, {
+        type: "play",
+        position: { x: 0, y: 0 },
+      }); // 白が(0,0)に打つ
       expect(afterWhiteMove.success).toBe(true);
       if (!afterWhiteMove.success) return;
 
-      const gameAfterTwoMoves = playMove(afterWhiteMove.state, { type: "play", position: { x: 1, y: 1 } }); // 黒が(1,1)に打つ
+      const gameAfterTwoMoves = playMove(afterWhiteMove.state, {
+        type: "play",
+        position: { x: 1, y: 1 },
+      }); // 黒が(1,1)に打つ
       expect(gameAfterTwoMoves.success).toBe(true);
       if (!gameAfterTwoMoves.success) return;
 
@@ -938,7 +944,7 @@ describe("playMove - コウのルール", () => {
           4 B . . . .
         `);
         const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
-        
+
         // Act - (0, 2)で白石を取る
         const result = playMove(game, { type: "play", position: { x: 0, y: 2 } });
 
@@ -961,7 +967,7 @@ describe("playMove - コウのルール", () => {
           4 . . . . .
         `);
         const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
-        
+
         // Act - (1, 0)に打って白石を取る
         const result = playMove(game, { type: "play", position: { x: 1, y: 0 } });
 
@@ -1058,7 +1064,7 @@ describe("playMove - コウのルール", () => {
       `);
       const game = createGameFromBoard(board, {
         currentPlayer: "white",
-        koPoint: { x: 4, y: 3 }
+        koPoint: { x: 4, y: 3 },
       });
 
       // Act - 白がパスする
