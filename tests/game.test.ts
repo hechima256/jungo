@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createGame, playMove } from "../src/game.js";
 import type { GameState, Move } from "../src/types.js";
+import { createBoardFromString, createGameFromBoard } from "./helpers.js";
 
 describe("createGame", () => {
   describe("正常系", () => {
@@ -800,51 +801,20 @@ describe("playMove - コウのルール", () => {
   describe("コウの成立条件", () => {
     it("Given: 1石取って1石残るコウの形 / When: 白石を取る / Then: koPointが設定される", () => {
       // Arrange - 実際のコウの形を作る
-      // 盤面イメージ (最終形):
-      //   2 3 4 5
-      // 2 . W B .
-      // 3 W . W B
-      // 4 . W B .
-      // この形で黒が(3,3)に打つと白(3,3の予定位置)を取ってコウが成立
-      let game = createGame(9);
-
-      // 白石で囲いを作る - (3,2)
-      game = playMove(game, { type: "pass" }).success
-        ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 黒石 - (4,2)
-      game = playMove(game, { type: "play", position: { x: 4, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 白石 - (2,3)
-      game = playMove(game, { type: "play", position: { x: 2, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 2, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 黒石 - (5,3)
-      game = playMove(game, { type: "play", position: { x: 5, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 5, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 白石 - (4,3)
-      game = playMove(game, { type: "play", position: { x: 4, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 黒石 - (4,4)
-      game = playMove(game, { type: "play", position: { x: 4, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 白石 - (3,4)
-      game = playMove(game, { type: "play", position: { x: 3, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
+      // この形で黒が(3,3)に打つと白(4,3)を取ってコウが成立
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W . W B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board);
 
       // Act - 黒が(3,3)に打って白石を取る - これでコウが成立
       const result = playMove(game, { type: "play", position: { x: 3, y: 3 } });
@@ -859,42 +829,27 @@ describe("playMove - コウのルール", () => {
     });
 
     it("Given: コウの形 / When: 白石を取った直後 / Then: すぐには取り返せない", () => {
-      // Arrange - コウの形を作って石を取る
-      let game = createGame(9);
-
-      // 同じコウの形を作る
-      game = playMove(game, { type: "pass" }).success
-        ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 2, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 2, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 5, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 5, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 黒が白石を取る
-      game = playMove(game, { type: "play", position: { x: 3, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
+      // Arrange - コウの形を作って石を取った直後の状態
+      // 黒が(3,3)に打って白(4,3)を取った直後、白番でkoPoint=(4,3)
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W . W B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board, {currentPlayer: "black", koPoint: null});
+      const afterBlackMove = playMove(game, { type: "play", position: { x: 3, y: 3 } });
+      expect(afterBlackMove.success).toBe(true);
+      if (!afterBlackMove.success) return;
 
       // Act - 白が直後に取り返そうとする
-      const result = playMove(game, { type: "play", position: { x: 4, y: 3 } });
+      const result = playMove(afterBlackMove.state, { type: "play", position: { x: 4, y: 3 } });
 
       // Assert
       expect(result.success).toBe(false);
@@ -903,39 +858,24 @@ describe("playMove - コウのルール", () => {
       }
     });
 
-    it("Given: コウで石を取った状態 / When: 別の場所に打った後 / Then: koPointがnullになる", () => {
+    it("Given: 石を取ってコウが発生した状態 / When: 別の場所に打った後 / Then: koPointがnullになる", () => {
       // Arrange - コウの形を作って石を取る
-      let game = createGame(9);
-
-      game = playMove(game, { type: "pass" }).success
-        ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 2, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 2, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 5, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 5, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
-      
-      // 黒が白石を取る (koPointが設定される)
-      game = playMove(game, { type: "play", position: { x: 3, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W B . B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board, {
+        currentPlayer: "white",
+        koPoint: { x: 4, y: 3 }
+      });
 
       // Act - 白が別の場所に打つ
       const result = playMove(game, { type: "play", position: { x: 0, y: 0 } });
@@ -948,51 +888,37 @@ describe("playMove - コウのルール", () => {
     });
 
     it("Given: コウで石を取った状態 / When: 1手挟んだ後 / Then: コウの位置に打てる", () => {
-      // Arrange - コウの形を作って石を取る
-      let game = createGame(9);
+      // Arrange - コウで石を取った後、1手挟んだ状態
+      // 黒が(3,3)に打って白を取り、白が(0,0)、黒が(1,1)と別の場所に打った状態
+      // koPointはnullになっている
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W . W B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+      
+      const afterBlackMove = playMove(game, { type: "play", position: { x: 3, y: 3 } }); // (3, 3)に打って白を取る
+      expect(afterBlackMove.success).toBe(true);
+      if (!afterBlackMove.success) return;
 
-      game = playMove(game, { type: "pass" }).success
-        ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 2, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 2, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 5, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 5, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
+      const afterWhiteMove = playMove(afterBlackMove.state, { type: "play", position: { x: 0, y: 0 } }); // 白が(0,0)に打つ
+      expect(afterWhiteMove.success).toBe(true);
+      if (!afterWhiteMove.success) return;
 
-      // 黒が白石を取る
-      game = playMove(game, { type: "play", position: { x: 3, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
+      const gameAfterTwoMoves = playMove(afterWhiteMove.state, { type: "play", position: { x: 1, y: 1 } }); // 黒が(1,1)に打つ
+      expect(gameAfterTwoMoves.success).toBe(true);
+      if (!gameAfterTwoMoves.success) return;
 
-      // 白が別の場所に打つ
-      game = playMove(game, { type: "play", position: { x: 0, y: 0 } }).success
-        ? (playMove(game, { type: "play", position: { x: 0, y: 0 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 黒も別の場所に打つ
-      game = playMove(game, { type: "play", position: { x: 1, y: 1 } }).success
-        ? (playMove(game, { type: "play", position: { x: 1, y: 1 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // Act - 白がコウの位置に打つ (今度は許可される)
-      const result = playMove(game, { type: "play", position: { x: 4, y: 3 } });
+      // Act - 黒がコウの位置に打つ
+      const result = playMove(gameAfterTwoMoves.state, { type: "play", position: { x: 4, y: 3 } });
 
       // Assert
       expect(result.success).toBe(true);
@@ -1130,38 +1056,23 @@ describe("playMove - コウのルール", () => {
 
   describe("パスとコウの関係", () => {
     it("Given: コウで石を取った状態 / When: パスする / Then: koPointがnullになる", () => {
-      // Arrange - コウの形を作って石を取る
-      let game = createGame(9);
-
-      game = playMove(game, { type: "pass" }).success
-        ? (playMove(game, { type: "pass" }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 2 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 2 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 2, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 2, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 5, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 5, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 4, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 4, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
-      game = playMove(game, { type: "play", position: { x: 3, y: 4 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 4 } }) as { success: true; state: GameState }).state
-        : game;
-
-      // 黒が白石を取る (koPointが設定される)
-      game = playMove(game, { type: "play", position: { x: 3, y: 3 } }).success
-        ? (playMove(game, { type: "play", position: { x: 3, y: 3 } }) as { success: true; state: GameState }).state
-        : game;
+      // Arrange - コウの形を作って石を取った状態
+      const board = createBoardFromString(`
+          0 1 2 3 4 5 6 7 8
+        0 . . . . . . . . .
+        1 . . . . . . . . .
+        2 . . . W B . . . .
+        3 . . W B . B . . .
+        4 . . . W B . . . .
+        5 . . . . . . . . .
+        6 . . . . . . . . .
+        7 . . . . . . . . .
+        8 . . . . . . . . .
+      `);
+      const game = createGameFromBoard(board, {
+        currentPlayer: "white",
+        koPoint: { x: 4, y: 3 }
+      });
 
       // Act - 白がパスする
       const result = playMove(game, { type: "pass" });
