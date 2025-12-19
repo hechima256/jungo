@@ -1,7 +1,7 @@
 {
   "name": "jungo",
   "version": "0.1.0",
-  "description": "A pure Go (Jungo) game library",
+  "description": "A Jungo game library",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
