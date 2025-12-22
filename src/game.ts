@@ -1,5 +1,6 @@
 import {
   captureStones,
+  countLiberties,
   createEmptyBoard,
   isValidPosition,
   placeStone,
@@ -202,13 +203,23 @@ export function playMove(state: GameState, move: Move): MoveResult {
       newBoard = boardAfterCapture;
 
       // 7. コウチェック（1石取って1石残る場合のみkoPoint設定）
+      // コウの条件:
+      // - 1石取った
+      // - 自分の石が1石だけ残っている
+      // - 相手が取った位置に打ち返した場合、自分の石を取れる形になる
       let newKoPoint: typeof state.koPoint = null;
       if (captured.length === 1) {
         // 1石取った場合、自分の石が1石だけかチェック
         const myGroupSize = countStonesInGroup(newBoard, position);
         if (myGroupSize === 1) {
-          // コウの可能性がある位置を記録
-          newKoPoint = captured[0];
+          const capturedPos = captured[0];
+          // 取った位置に相手の石を仮に置く
+          const testBoard = placeStone(newBoard as Cell[][], capturedPos, nextColor);
+          // その状態で、今置いた石の呼吸点が0になるかチェック
+          if (countLiberties(testBoard, position) === 0) {
+            // 呼吸点が0になる = 相手が取り返せる = コウ
+            newKoPoint = capturedPos;
+          }
         }
       }
 

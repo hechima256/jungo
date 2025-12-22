@@ -982,6 +982,84 @@ describe("playMove - コウのルール", () => {
   });
 
   describe("コウにならないケース", () => {
+    it("Given: ポン抜きの形（完全に囲まれた1石を取る） / When: 石を取る / Then: koPointはnullのまま（コウではない）", () => {
+      // Arrange - ポン抜きの形を作る（白石1つを3方向から囲んでいて、残り1つの隣に黒が打つ）
+      // 黒が(3,2)に打つと白(2,2)を取るが、白がすぐに(2,2)に打つと自殺手になる
+      // これはコウではなく単なるポン抜き
+      const board = createBoardFromString(`
+          0 1 2 3 4
+        0 . . . . .
+        1 . . B . .
+        2 . B W . .
+        3 . . B . .
+        4 . . . . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+
+      // Act - 黒が(3,2)で白石を取る
+      const result = playMove(game, { type: "play", position: { x: 3, y: 2 } });
+
+      // Assert - ポン抜きなのでkoPointはnullであるべき
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.koPoint).toBeNull();
+        expect(result.state.board[2][2]).toBeNull(); // 白石が取られた
+        expect(result.state.board[2][3]).toBe("black"); // 黒石が置かれた
+      }
+    });
+
+    it("Given: 辺でのポン抜きの形 / When: 石を取る / Then: koPointはnullのまま", () => {
+      // Arrange - 辺でのポン抜きの形
+      // 白石(1,0)を黒石(0,0)と(1,1)で2方向から囲み、黒が(2,0)に打つと取れる
+      // 白が(1,0)に打ち返すと自殺手になるのでコウではない
+      const board = createBoardFromString(`
+          0 1 2 3 4
+        0 B W . . .
+        1 . B . . .
+        2 . . . . .
+        3 . . . . .
+        4 . . . . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+
+      // Act - 黒が(2,0)で白石を取る
+      const result = playMove(game, { type: "play", position: { x: 2, y: 0 } });
+
+      // Assert - ポン抜きなのでkoPointはnullであるべき
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.koPoint).toBeNull();
+        expect(result.state.board[0][1]).toBeNull(); // 白石が取られた
+        expect(result.state.board[0][2]).toBe("black"); // 黒石が置かれた
+      }
+    });
+
+    it("Given: 隅でのポン抜きの形 / When: 石を取る / Then: koPointはnullのまま", () => {
+      // Arrange - 隅でのポン抜きの形
+      // 白石(0,0)を黒石(1,0)で1方向から囲み、黒が(0,1)に打つと取れる
+      // 白が(0,0)に打ち返すと自殺手になるのでコウではない
+      const board = createBoardFromString(`
+          0 1 2 3 4
+        0 W B . . .
+        1 . . . . .
+        2 . . . . .
+        3 . . . . .
+        4 . . . . .
+      `);
+      const game = createGameFromBoard(board, { currentPlayer: "black", koPoint: null });
+
+      // Act - 黒が(0,1)で白石を取る
+      const result = playMove(game, { type: "play", position: { x: 0, y: 1 } });
+
+      // Assert - ポン抜きなのでkoPointはnullであるべき
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.state.koPoint).toBeNull();
+        expect(result.state.board[0][0]).toBeNull(); // 白石が取られた
+        expect(result.state.board[1][0]).toBe("black"); // 黒石が置かれた
+      }
+    });
+
     it("Given: 2石取る場合 / When: 石を取る / Then: koPointはnullのまま", () => {
       // Arrange - 2石取る形を作る
       const board = createBoardFromString(`
