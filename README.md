@@ -1,4 +1,5 @@
 ![CI](https://github.com/hechima256/jungo/actions/workflows/ci.yml/badge.svg)
+![npm version](https://img.shields.io/npm/v/jungo)
 
 **[API Documentation](https://hechima256.github.io/jungo/)**
 
@@ -161,7 +162,3 @@ npm run typecheck
 
 ## Todo
 [TODO.md](./TODO.md)
-
-## バージョン
-
-0.1.0
