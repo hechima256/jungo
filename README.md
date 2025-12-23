@@ -104,29 +104,9 @@ const resignResult = playMove(initialState, { type: 'resign' });
 
 ## 型定義
 
-主要な型定義：
+主要な型：`Color`, `Cell`, `Position`, `Move`, `GameState`, `MoveResult`, `MoveError`
 
-```typescript
-type Color = 'black' | 'white';
-type Cell = Color | null;
-type Position = { readonly x: number; readonly y: number };
-
-type GameState = {
-  readonly board: ReadonlyArray<ReadonlyArray<Cell>>;
-  readonly size: number;
-  readonly currentPlayer: Color;
-  readonly koPoint: Position | null;
-  readonly moveCount: number;
-  readonly lastMove: (Move & { readonly color: Color }) | null;
-  readonly isOver: boolean;
-  readonly winner: Color | 'draw' | null;
-  readonly stoneCount: { readonly black: number; readonly white: number };
-};
-
-type MoveResult =
-  | { readonly success: true; readonly state: GameState }
-  | { readonly success: false; readonly error: MoveError };
-```
+詳細は[APIドキュメント](https://hechima256.github.io/jungo/)を参照してください。
 
 ## 純碁のゲームルール
 
