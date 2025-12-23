@@ -187,12 +187,12 @@ export function playMove(state: GameState, move: Move): MoveResult {
       }
 
       // 4. 仮配置して自殺手チェック
-      if (wouldBeSuicide(state.board as Cell[][], position, currentColor)) {
+      if (wouldBeSuicide(state.board, position, currentColor)) {
         return { success: false, error: "suicide" };
       }
 
       // 5. 石を配置
-      let newBoard = placeStone(state.board as Cell[][], position, currentColor);
+      let newBoard = placeStone(state.board, position, currentColor);
 
       // 6. 相手の石を取る処理
       const { board: boardAfterCapture, captured } = captureStones(
@@ -211,7 +211,7 @@ export function playMove(state: GameState, move: Move): MoveResult {
       if (
         captured.length === 1 &&
         countStonesInGroup(newBoard, position) === 1 &&
-        countLiberties(newBoard as Cell[][], position) === 1
+        countLiberties(newBoard, position) === 1
       ) {
         newKoPoint = captured[0];
       }
@@ -282,10 +282,7 @@ export function playMove(state: GameState, move: Move): MoveResult {
  * console.log(count); // 2
  * ```
  */
-function countStonesInGroup(
-  board: ReadonlyArray<ReadonlyArray<Color | null>>,
-  position: { readonly x: number; readonly y: number }
-): number {
+function countStonesInGroup(board: Cell[][], position: { x: number; y: number }): number {
   const color = board[position.y]?.[position.x];
   if (color === null || color === undefined) {
     return 0;
