@@ -86,15 +86,15 @@ export type Move =
  * ```
  */
 export type GameState = {
-  readonly board: ReadonlyArray<ReadonlyArray<Cell>>;
-  readonly size: number;
-  readonly currentPlayer: Color;
-  readonly koPoint: Position | null;
-  readonly moveCount: number;
-  readonly lastMove: (Move & { readonly color: Color }) | null;
-  readonly isOver: boolean;
-  readonly winner: Color | "draw" | null;
-  readonly stoneCount: { readonly black: number; readonly white: number };
+  board: Cell[][];
+  size: number;
+  currentPlayer: Color;
+  koPoint: Position | null;
+  moveCount: number;
+  lastMove: (Move & { color: Color }) | null;
+  isOver: boolean;
+  winner: Color | "draw" | null;
+  stoneCount: { black: number; white: number };
 };
 
 /**
