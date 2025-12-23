@@ -1,5 +1,5 @@
 # Todo
 - [x] コウまわりのテストケースを充実させる
-- [ ] npm公開
-- [ ] GitHub Actionsでの自動リリースを設定する
+- [x] npm公開
+- [x] GitHub Actionsでの自動リリースを設定する
 
